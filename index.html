@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mila's Interactive Comic - The Secret</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Comic+Neue:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: linear-gradient(135deg, #1a1040 0%, #2d1b69 30%, #1a1040 60%, #0f0a2a 100%);
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    color: #fff;
+    overflow-x: hidden;
+  }
+
+  /* Magical particles background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      radial-gradient(2px 2px at 20% 30%, rgba(255,200,50,0.3), transparent),
+      radial-gradient(2px 2px at 80% 20%, rgba(100,200,255,0.3), transparent),
+      radial-gradient(2px 2px at 50% 80%, rgba(255,100,200,0.2), transparent),
+      radial-gradient(1px 1px at 30% 70%, rgba(255,255,100,0.3), transparent),
+      radial-gradient(1px 1px at 70% 50%, rgba(100,255,200,0.2), transparent);
+    animation: sparkle 4s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes sparkle {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    margin-bottom: 6px;
+  }
+
+  .header p {
+    color: #b8a9d4;
+    font-size: 0.95rem;
+  }
+
+  /* Mode Selector */
+  .mode-selector {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .mode-btn {
+    padding: 10px 20px;
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 50px;
+    background: rgba(255,255,255,0.05);
+    color: #d4c5f0;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mode-btn:hover {
+    background: rgba(255,215,0,0.1);
+    border-color: rgba(255,215,0,0.6);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .mode-btn.active {
+    background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,140,0,0.2));
+    border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 0 20px rgba(255,215,0,0.2);
+  }
+
+  .mode-icon { font-size: 1.3rem; }
+
+  /* Comic Container */
+  .comic-wrapper {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 60px rgba(100,60,200,0.15);
+    border: 2px solid rgba(255,215,0,0.2);
+  }
+
+  .comic-wrapper img {
+    width: 100%;
+    display: block;
+  }
+
+  /* Bubble Overlays */
+  .bubble-overlay {
+    position: absolute;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+
+  .bubble-overlay:hover {
+    background: rgba(255,215,0,0.15);
+    box-shadow: 0 0 20px rgba(255,215,0,0.3);
+  }
+
+  .bubble-overlay.playing {
+    background: rgba(255,215,0,0.2);
+    box-shadow: 0 0 30px rgba(255,215,0,0.5);
+    animation: pulse-glow 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 15px rgba(255,215,0,0.3); }
+    50% { box-shadow: 0 0 35px rgba(255,215,0,0.6); }
+  }
+
+  /* Word Mode - clickable word regions inside bubbles */
+  .word-overlay {
+    position: absolute;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+    z-index: 15;
+    display: none;
+  }
+
+  .word-overlay:hover {
+    background: rgba(100,200,255,0.25);
+    box-shadow: 0 0 10px rgba(100,200,255,0.4);
+  }
+
+  .word-overlay.playing {
+    background: rgba(100,255,150,0.3);
+    box-shadow: 0 0 15px rgba(100,255,150,0.5);
+  }
+
+  body.mode-words .word-overlay { display: block; }
+  body.mode-words .bubble-overlay { pointer-events: none; }
+
+  /* Reading Test Panel */
+  .test-panel {
+    display: none;
+    margin-top: 20px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,215,0,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  body.mode-test .test-panel { display: block; }
+
+  .test-panel h3 {
+    font-size: 1.3rem;
+    color: #ffd700;
+    margin-bottom: 15px;
+  }
+
+  .test-bubble-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .test-bubble-btn {
+    padding: 8px 16px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    color: #d4c5f0;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .test-bubble-btn:hover, .test-bubble-btn.active {
+    border-color: #ffd700;
+    color: #ffd700;
+    background: rgba(255,215,0,0.1);
+  }
+
+  .test-text-display {
+    font-family: 'Comic Neue', cursive;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    line-height: 1.8;
+    min-height: 80px;
+  }
+
+  .test-text-display .word {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 0 2px;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .test-text-display .word:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .test-text-display .word.correct {
+    color: #50fa7b;
+    background: rgba(80,250,123,0.15);
+  }
+
+  .test-text-display .word.incorrect {
+    color: #ff6b6b;
+    background: rgba(255,107,107,0.15);
+    text-decoration: underline wavy #ff6b6b;
+  }
+
+  .test-text-display .word.pending {
+    color: rgba(255,255,255,0.4);
+  }
+
+  .record-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #ffd700;
+    background: rgba(255,215,0,0.1);
+    color: #ffd700;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+
+  .record-btn:hover {
+    background: rgba(255,215,0,0.2);
+    transform: scale(1.05);
+  }
+
+  .record-btn.recording {
+    border-color: #ff4444;
+    background: rgba(255,68,68,0.2);
+    color: #ff4444;
+    animation: record-pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes record-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.4); }
+    50% { box-shadow: 0 0 0 15px rgba(255,68,68,0); }
+  }
+
+  .test-status {
+    font-size: 0.95rem;
+    color: #b8a9d4;
+    margin-top: 10px;
+    min-height: 24px;
+  }
+
+  .score-display {
+    display: none;
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+  }
+
+  .score-display.visible { display: block; }
+
+  .score-number {
+    font-size: 3rem;
+    font-weight: 700;
+  }
+
+  .score-number.great { color: #50fa7b; }
+  .score-number.good { color: #ffd700; }
+  .score-number.practice { color: #ff8c42; }
+
+  .score-message {
+    font-size: 1.1rem;
+    margin-top: 8px;
+  }
+
+  .retry-btn {
+    margin-top: 15px;
+    padding: 10px 24px;
+    border: 2px solid #ffd700;
+    border-radius: 50px;
+    background: rgba(255,215,0,0.1);
+    color: #ffd700;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .retry-btn:hover {
+    background: rgba(255,215,0,0.2);
+    transform: scale(1.05);
+  }
+
+  .practice-words {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .practice-word {
+    padding: 8px 16px;
+    background: rgba(255,107,107,0.15);
+    border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 20px;
+    color: #ff8c8c;
+    font-family: 'Comic Neue', cursive;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .practice-word:hover {
+    background: rgba(255,107,107,0.3);
+    transform: scale(1.08);
+    box-shadow: 0 0 10px rgba(255,107,107,0.3);
+  }
+
+  .practice-word.played {
+    border-color: rgba(100,255,150,0.4);
+    color: #8fc;
+    background: rgba(100,255,150,0.1);
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: fixed;
+    background: rgba(30,20,60,0.95);
+    border: 1px solid rgba(255,215,0,0.4);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: #ffd700;
+    font-size: 0.9rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 100;
+    white-space: nowrap;
+    font-family: 'Comic Neue', cursive;
+    font-weight: 700;
+  }
+
+  .tooltip.visible { opacity: 1; }
+
+  /* Instructions */
+  .instructions {
+    text-align: center;
+    padding: 12px;
+    background: rgba(255,215,0,0.08);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: #d4c5f0;
+    border: 1px solid rgba(255,215,0,0.15);
+  }
+
+  .instructions .emoji { font-size: 1.1rem; }
+
+  /* Audio indicator */
+  .audio-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(30,20,60,0.95);
+    border: 2px solid #ffd700;
+    border-radius: 50px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+    z-index: 50;
+  }
+
+  .audio-indicator.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .audio-bars {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+    height: 20px;
+  }
+
+  .audio-bar {
+    width: 3px;
+    background: #ffd700;
+    border-radius: 2px;
+    animation: audio-bounce 0.6s ease-in-out infinite;
+  }
+
+  .audio-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+  .audio-bar:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+  .audio-bar:nth-child(3) { height: 20px; animation-delay: 0.2s; }
+  .audio-bar:nth-child(4) { height: 14px; animation-delay: 0.3s; }
+  .audio-bar:nth-child(5) { height: 8px; animation-delay: 0.4s; }
+
+  @keyframes audio-bounce {
+    0%, 100% { transform: scaleY(0.5); }
+    50% { transform: scaleY(1); }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .container { padding: 12px; }
+    .header h1 { font-size: 1.5rem; }
+    .mode-btn { padding: 8px 14px; font-size: 0.85rem; }
+    .test-text-display { font-size: 1.2rem; padding: 15px; }
+    .record-btn { width: 65px; height: 65px; font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body class="mode-bubbles">
+
+<div class="container">
+  <div class="header">
+    <h1>Mila's Interactive Comic</h1>
+    <p>Episode 1: The Secret</p>
+  </div>
+
+  <div class="mode-selector">
+    <button class="mode-btn active" data-mode="bubbles" onclick="setMode('bubbles')">
+      <span class="mode-icon">&#x1F4AC;</span> Listen to Bubbles
+    </button>
+    <button class="mode-btn" data-mode="words" onclick="setMode('words')">
+      <span class="mode-icon">&#x1F524;</span> Learn Words
+    </button>
+    <button class="mode-btn" data-mode="test" onclick="setMode('test')">
+      <span class="mode-icon">&#x1F3A4;</span> Reading Test
+    </button>
+  </div>
+
+  <div class="instructions" id="instructions">
+    &#x1F4AC; Click any speech bubble to hear it read aloud!
+  </div>
+
+  <div class="comic-wrapper" id="comicWrapper">
+    <img src="comic-page.png" alt="The Secret - Comic Page" id="comicImage" onload="initOverlays()">
+
+    <!-- Bubble 1: Mila - top left panel -->
+    <div class="bubble-overlay" id="bubble0"
+         style="left:17%; top:3.5%; width:30%; height:8.5%;"
+         onclick="playBubble(0)"></div>
+
+    <!-- Bubble 2: Mom - top left panel -->
+    <div class="bubble-overlay" id="bubble1"
+         style="left:1.5%; top:19%; width:33%; height:10%;"
+         onclick="playBubble(1)"></div>
+
+    <!-- Bubble 3: Mom spirit - top right panel -->
+    <div class="bubble-overlay" id="bubble2"
+         style="left:72%; top:4.5%; width:22%; height:6%;"
+         onclick="playBubble(2)"></div>
+
+    <!-- Bubble 4: Mila - top right panel -->
+    <div class="bubble-overlay" id="bubble3"
+         style="left:59%; top:13%; width:18%; height:5%;"
+         onclick="playBubble(3)"></div>
+
+    <!-- Bubble 5: Grimshaw - middle panel -->
+    <div class="bubble-overlay" id="bubble4"
+         style="left:22%; top:34.5%; width:55%; height:8%;"
+         onclick="playBubble(4)"></div>
+
+    <!-- Bubble 6: Grimshaw - bottom left -->
+    <div class="bubble-overlay" id="bubble5"
+         style="left:1%; top:58%; width:17%; height:7%;"
+         onclick="playBubble(5)"></div>
+  </div>
+
+  <!-- Reading Test Panel -->
+  <div class="test-panel" id="testPanel">
+    <h3>&#x1F3A4; Reading Test</h3>
+    <p style="color:#b8a9d4; margin-bottom:15px; font-size:0.9rem;">Choose a speech bubble, then read it out loud!</p>
+
+    <div class="test-bubble-selector" id="testBubbleSelector"></div>
+
+    <div class="test-text-display" id="testTextDisplay">
+      &#x2B06; Select a bubble above to start
+    </div>
+
+    <button class="record-btn" id="recordBtn" onclick="toggleRecording()">
+      &#x1F3A4;
+    </button>
+
+    <div class="test-status" id="testStatus">
+      Press the microphone to start recording
+    </div>
+
+    <div class="score-display" id="scoreDisplay">
+      <div class="score-number" id="scoreNumber"></div>
+      <div class="score-message" id="scoreMessage"></div>
+      <div class="practice-words" id="practiceWords"></div>
+      <button class="retry-btn" onclick="retryTest()">&#x1F504; Try Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- Audio indicator -->
+<div class="audio-indicator" id="audioIndicator">
+  <div class="audio-bars">
+    <div class="audio-bar"></div>
+    <div class="audio-bar"></div>
+    <div class="audio-bar"></div>
+    <div class="audio-bar"></div>
+    <div class="audio-bar"></div>
+  </div>
+  <span id="audioText" style="color:#ffd700; font-size:0.85rem;"></span>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// ===== BUBBLE DATA =====
+const bubbles = [
+  {
+    character: 'Mila',
+    text: "Mom, I can't go. I'm not a real wizard.",
+    audio: 'audio/bubble1_mila.mp3'
+  },
+  {
+    character: 'Mom',
+    text: "You can be a wizard, Mila. You will need to work hard.",
+    audio: 'audio/bubble2_mom.mp3'
+  },
+  {
+    character: 'Mom',
+    text: "you will be good!",
+    audio: 'audio/bubble3_mom.mp3'
+  },
+  {
+    character: 'Mila',
+    text: "I hope so",
+    audio: 'audio/bubble4_mila.mp3'
+  },
+  {
+    character: 'Professor Grimshaw',
+    text: "Hello kids! Here, you will learn big magic. Soon, you will have a test. The best spell will win.",
+    audio: 'audio/bubble5_grimshaw.mp3'
+  },
+  {
+    character: 'Professor Grimshaw',
+    text: "Now, go to sleep.",
+    audio: 'audio/bubble6_grimshaw.mp3'
+  },
+];
+
+let currentMode = 'bubbles';
+let currentAudio = null;
+let isRecording = false;
+let recognition = null;
+let selectedTestBubble = null;
+
+// ===== AUDIO PLAYBACK =====
+function playAudioFile(src, label, onEnd) {
+  // Stop any currently playing audio
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
+
+  const audio = new Audio(src);
+  currentAudio = audio;
+
+  const indicator = document.getElementById('audioIndicator');
+  const audioText = document.getElementById('audioText');
+  audioText.textContent = label;
+  indicator.classList.add('visible');
+
+  audio.onended = () => {
+    indicator.classList.remove('visible');
+    currentAudio = null;
+    document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
+    if (onEnd) onEnd();
+  };
+
+  audio.onerror = () => {
+    indicator.classList.remove('visible');
+    currentAudio = null;
+    document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
+  };
+
+  audio.play().catch(() => {
+    // If autoplay blocked, show a message
+    indicator.classList.remove('visible');
+  });
+}
+
+function playWordAudio(word) {
+  const cleanWord = word.toLowerCase().replace(/[^a-z']/g, '');
+  if (!cleanWord) return;
+  const src = 'audio/words/' + cleanWord + '.mp3';
+  playAudioFile(src, word);
+}
+
+// ===== MODE SWITCHING =====
+function setMode(mode) {
+  currentMode = mode;
+  document.body.className = 'mode-' + mode;
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+
+  const instructions = document.getElementById('instructions');
+  const msgs = {
+    bubbles: '&#x1F4AC; Click any speech bubble to hear it read aloud!',
+    words: '&#x1F524; Click any word in the bubbles to hear its pronunciation!',
+    test: '&#x1F3A4; Choose a bubble below, then read it aloud into your microphone!'
+  };
+  instructions.innerHTML = msgs[mode];
+
+  // Stop current audio
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
+  document.getElementById('audioIndicator').classList.remove('visible');
+  stopRecording();
+}
+
+// ===== BUBBLE MODE =====
+function playBubble(index) {
+  if (currentMode !== 'bubbles') return;
+
+  const bubble = bubbles[index];
+  const el = document.getElementById('bubble' + index);
+
+  document.querySelectorAll('.playing').forEach(e => e.classList.remove('playing'));
+  el.classList.add('playing');
+
+  playAudioFile(bubble.audio, bubble.character + ' speaking...');
+}
+
+// ===== WORD MODE =====
+function initOverlays() {
+  const wrapper = document.getElementById('comicWrapper');
+
+  bubbles.forEach((bubble, bi) => {
+    const bubbleEl = document.getElementById('bubble' + bi);
+    const words = bubble.text.replace(/[.,!?'"]/g, '').split(/\s+/);
+
+    const rect = {
+      left: parseFloat(bubbleEl.style.left),
+      top: parseFloat(bubbleEl.style.top),
+      width: parseFloat(bubbleEl.style.width),
+      height: parseFloat(bubbleEl.style.height),
+    };
+
+    // Layout words in rows within the bubble area
+    const maxWordsPerRow = Math.max(3, Math.floor(rect.width / 7));
+    const rows = [];
+    let row = [];
+    words.forEach(word => {
+      row.push(word);
+      if (row.length >= maxWordsPerRow) {
+        rows.push([...row]);
+        row = [];
+      }
+    });
+    if (row.length) rows.push(row);
+
+    const rowH = rect.height / (rows.length + 0.5);
+    const pad = 1.5;
+
+    rows.forEach((r, ri) => {
+      const totalChars = r.reduce((s, w) => s + w.length, 0);
+      const availW = rect.width - pad * 2;
+      let x = rect.left + pad;
+
+      r.forEach(word => {
+        const w = (word.length / totalChars) * availW * 0.85;
+        const div = document.createElement('div');
+        div.className = 'word-overlay';
+        div.dataset.word = word;
+        div.title = word;
+        div.style.left = x + '%';
+        div.style.top = (rect.top + pad * 0.5 + ri * rowH) + '%';
+        div.style.width = w + '%';
+        div.style.height = rowH + '%';
+
+        div.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (currentMode !== 'words') return;
+          document.querySelectorAll('.word-overlay.playing').forEach(e => e.classList.remove('playing'));
+          div.classList.add('playing');
+          playWordAudio(word);
+        });
+
+        div.addEventListener('mouseenter', (e) => {
+          if (currentMode !== 'words') return;
+          const tooltip = document.getElementById('tooltip');
+          tooltip.innerHTML = '&#x1F50A; ' + word;
+          tooltip.style.left = e.clientX + 12 + 'px';
+          tooltip.style.top = e.clientY - 40 + 'px';
+          tooltip.classList.add('visible');
+        });
+
+        div.addEventListener('mouseleave', () => {
+          document.getElementById('tooltip').classList.remove('visible');
+        });
+
+        wrapper.appendChild(div);
+        x += w + (availW * 0.15 / r.length);
+      });
+    });
+  });
+}
+
+// ===== READING TEST =====
+function initTestPanel() {
+  const selector = document.getElementById('testBubbleSelector');
+  bubbles.forEach((bubble, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'test-bubble-btn';
+    const preview = bubble.text.length > 25 ? bubble.text.substring(0, 25) + '...' : bubble.text;
+    btn.textContent = bubble.character + ': "' + preview + '"';
+    btn.onclick = () => selectTestBubble(i, btn);
+    selector.appendChild(btn);
+  });
+}
+
+function selectTestBubble(index, btn) {
+  selectedTestBubble = { ...bubbles[index], index };
+
+  document.querySelectorAll('.test-bubble-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const display = document.getElementById('testTextDisplay');
+  const words = bubbles[index].text.split(/\s+/);
+  display.innerHTML = words.map(w =>
+    '<span class="word pending" onclick="playWordAudio(\'' + w.replace(/'/g, "\\'") + '\')">' + w + '</span>'
+  ).join(' ');
+
+  document.getElementById('scoreDisplay').classList.remove('visible');
+  document.getElementById('testStatus').textContent = 'Press the microphone and read the text above!';
+}
+
+function retryTest() {
+  if (selectedTestBubble) {
+    const btn = document.querySelectorAll('.test-bubble-btn')[selectedTestBubble.index];
+    selectTestBubble(selectedTestBubble.index, btn);
+  }
+}
+
+function toggleRecording() {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  if (!selectedTestBubble) {
+    document.getElementById('testStatus').textContent = 'Please select a bubble first!';
+    return;
+  }
+
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    document.getElementById('testStatus').textContent =
+      'Speech recognition is not supported in this browser. Please use Chrome or Edge.';
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = true;
+  recognition.continuous = true;
+  recognition.maxAlternatives = 3;
+
+  const recordBtn = document.getElementById('recordBtn');
+  recordBtn.classList.add('recording');
+  recordBtn.innerHTML = '&#x23F9;';
+  isRecording = true;
+
+  document.getElementById('testStatus').textContent = 'Listening... Read the text now!';
+  document.getElementById('scoreDisplay').classList.remove('visible');
+
+  // Reset word colors
+  document.querySelectorAll('#testTextDisplay .word').forEach(w => {
+    w.className = 'word pending';
+  });
+
+  let finalTranscript = '';
+
+  recognition.onresult = (event) => {
+    let interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        finalTranscript += event.results[i][0].transcript + ' ';
+      } else {
+        interim += event.results[i][0].transcript;
+      }
+    }
+
+    const spokenSoFar = (finalTranscript + interim).trim();
+    updateWordHighlights(spokenSoFar);
+    document.getElementById('testStatus').textContent = 'Heard: "' + spokenSoFar + '"';
+  };
+
+  recognition.onerror = (event) => {
+    if (event.error !== 'no-speech' && event.error !== 'aborted') {
+      document.getElementById('testStatus').textContent = 'Error: ' + event.error + '. Try again!';
+    }
+    stopRecording();
+  };
+
+  recognition.onend = () => {
+    if (isRecording) {
+      evaluateReading(finalTranscript.trim());
+      isRecording = false;
+      recordBtn.classList.remove('recording');
+      recordBtn.innerHTML = '&#x1F3A4;';
+    }
+  };
+
+  recognition.start();
+}
+
+function stopRecording() {
+  isRecording = false;
+  const recordBtn = document.getElementById('recordBtn');
+  recordBtn.classList.remove('recording');
+  recordBtn.innerHTML = '&#x1F3A4;';
+
+  if (recognition) {
+    try { recognition.stop(); } catch(e) {}
+    recognition = null;
+  }
+}
+
+function normalizeWord(w) {
+  return w.toLowerCase().replace(/[^a-z']/g, '');
+}
+
+function updateWordHighlights(spoken) {
+  if (!selectedTestBubble) return;
+
+  const expectedWords = selectedTestBubble.text.split(/\s+/).map(normalizeWord);
+  const spokenWords = spoken.split(/\s+/).map(normalizeWord).filter(w => w);
+  const wordEls = document.querySelectorAll('#testTextDisplay .word');
+
+  wordEls.forEach((el, i) => {
+    if (i < spokenWords.length) {
+      const expected = expectedWords[i];
+      const got = spokenWords[i];
+      if (expected === got || levenshtein(expected, got) <= 1) {
+        el.className = 'word correct';
+      } else {
+        el.className = 'word incorrect';
+      }
+    } else {
+      el.className = 'word pending';
+    }
+  });
+}
+
+function evaluateReading(spoken) {
+  if (!selectedTestBubble || !spoken) {
+    document.getElementById('testStatus').textContent = 'No speech detected. Try again!';
+    return;
+  }
+
+  const expectedWords = selectedTestBubble.text.split(/\s+/).map(normalizeWord);
+  const spokenWords = spoken.split(/\s+/).map(normalizeWord).filter(w => w);
+
+  let correct = 0;
+  const incorrectWords = [];
+
+  expectedWords.forEach((word, i) => {
+    const got = spokenWords[i] || '';
+    if (word === got || levenshtein(word, got) <= 1) {
+      correct++;
+    } else {
+      incorrectWords.push(selectedTestBubble.text.split(/\s+/)[i]);
+    }
+  });
+
+  const score = Math.round((correct / expectedWords.length) * 100);
+  updateWordHighlights(spoken);
+
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const scoreNumber = document.getElementById('scoreNumber');
+  const scoreMessage = document.getElementById('scoreMessage');
+  const practiceWords = document.getElementById('practiceWords');
+
+  scoreNumber.textContent = score + '%';
+
+  if (score >= 90) {
+    scoreNumber.className = 'score-number great';
+    scoreMessage.textContent = 'Amazing wizard! You read it perfectly! ';
+    scoreMessage.style.color = '#50fa7b';
+  } else if (score >= 70) {
+    scoreNumber.className = 'score-number good';
+    scoreMessage.textContent = 'Good job! Practice the highlighted words and try again!';
+    scoreMessage.style.color = '#ffd700';
+  } else {
+    scoreNumber.className = 'score-number practice';
+    scoreMessage.textContent = 'Keep practicing! Click the words below to hear how they sound.';
+    scoreMessage.style.color = '#ff8c42';
+  }
+
+  // Show practice words (clickable to hear pronunciation)
+  practiceWords.innerHTML = '';
+  if (incorrectWords.length > 0) {
+    incorrectWords.forEach(word => {
+      const btn = document.createElement('button');
+      btn.className = 'practice-word';
+      btn.innerHTML = '&#x1F50A; ' + word;
+      btn.onclick = () => {
+        playWordAudio(word);
+        btn.classList.add('played');
+      };
+      practiceWords.appendChild(btn);
+    });
+  }
+
+  scoreDisplay.classList.add('visible');
+  document.getElementById('testStatus').textContent =
+    'Done! ' + correct + '/' + expectedWords.length + ' words correct.';
+}
+
+// Levenshtein distance for fuzzy matching
+function levenshtein(a, b) {
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const m = [];
+  for (let i = 0; i <= b.length; i++) m[i] = [i];
+  for (let j = 0; j <= a.length; j++) m[0][j] = j;
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      m[i][j] = b[i-1] === a[j-1]
+        ? m[i-1][j-1]
+        : Math.min(m[i-1][j-1] + 1, m[i][j-1] + 1, m[i-1][j] + 1);
+    }
+  }
+  return m[b.length][a.length];
+}
+
+// ===== INIT =====
+initTestPanel();
+</script>
+</body>
+</html>
