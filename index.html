@@ -831,9 +831,10 @@ function startRecording(ctx) {
   const prefix = ctx === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
   document.querySelectorAll('#' + prefix + ' .word').forEach(w => w.className = 'word pending');
 
-  let finalTranscript = '';
-  const expectedCount = bubbles[bi].text.split(/\s+/).length;
+  let fullTranscript = ''; // All heard text accumulated across restarts
+  const expectedWords = bubbles[bi].text.split(/\s+/);
   let autoStopScheduled = false;
+  let lastHeard = ''; // Always show what mic hears
 
   function createRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -844,51 +845,64 @@ function startRecording(ctx) {
     recognition.maxAlternatives = 5;
 
     recognition.onresult = (ev) => {
+      // Build transcript from all results
+      let sessionFinal = '';
       let interim = '';
-      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      for (let i = 0; i < ev.results.length; i++) {
         if (ev.results[i].isFinal) {
-          // Pick the best alternative that matches expected words
-          finalTranscript += pickBestAlternative(ev.results[i], bi, finalTranscript) + ' ';
+          // Pick best alternative for this chunk
+          sessionFinal += pickBestAlternative(ev.results[i], bi) + ' ';
         } else {
           interim += ev.results[i][0].transcript;
         }
       }
-      const spoken = (finalTranscript + interim).trim();
-      updateHighlights(ctx, bi, spoken);
-      setStatus(ctx, 'Heard: "' + spoken + '"');
 
-      // AUTO-STOP: when spoken word count >= expected word count
-      const spokenCount = spoken.split(/\s+/).filter(w => w).length;
-      if (spokenCount >= expectedCount && !autoStopScheduled) {
+      const currentFullText = (fullTranscript + sessionFinal + interim).trim();
+      lastHeard = currentFullText;
+
+      // Run flexible alignment and update highlights
+      const alignment = flexAlign(expectedWords, currentFullText);
+      applyAlignment(ctx, alignment);
+
+      // Always show what the mic hears
+      setStatus(ctx, 'Hearing: "' + currentFullText + '"');
+
+      // AUTO-STOP: check if alignment covered all expected words
+      const matchedCount = alignment.filter(a => a.status !== 'pending').length;
+      if (matchedCount >= expectedWords.length && !autoStopScheduled) {
         autoStopScheduled = true;
+        // Store sessionFinal into fullTranscript before stopping
+        fullTranscript += sessionFinal;
         setTimeout(() => {
-          if (isRecording) forceStopAndEvaluate(ctx, bi, (finalTranscript + interim).trim());
+          if (isRecording) forceStopAndEvaluate(ctx, bi, lastHeard);
         }, 800);
       }
     };
 
     recognition.onerror = (ev) => {
-      // On mobile, 'no-speech' and 'aborted' are common - just ignore
       if (ev.error !== 'no-speech' && ev.error !== 'aborted' && ev.error !== 'network') {
-        setStatus(ctx, 'Error: ' + ev.error);
+        setStatus(ctx, 'Error: ' + ev.error + '. Heard so far: "' + lastHeard + '"');
         stopRecording();
       }
     };
 
     recognition.onend = () => {
       if (!isRecording) return;
-      // Check if we have enough words to evaluate
-      const spokenCount = finalTranscript.trim().split(/\s+/).filter(w => w).length;
-      if (spokenCount >= expectedCount) {
-        // We have all words - evaluate
-        forceStopAndEvaluate(ctx, bi, finalTranscript.trim());
+
+      // Save what we heard in this session
+      // (fullTranscript already has accumulated text from previous restarts)
+      if (lastHeard) fullTranscript = lastHeard;
+
+      const alignment = flexAlign(expectedWords, fullTranscript);
+      const matchedCount = alignment.filter(a => a.status !== 'pending').length;
+
+      if (matchedCount >= expectedWords.length) {
+        forceStopAndEvaluate(ctx, bi, fullTranscript);
       } else {
-        // Mobile killed recognition early (silence timeout)
-        // Restart it automatically - keep listening
-        setStatus(ctx, 'Still listening... keep reading! (' + spokenCount + '/' + expectedCount + ' words)');
+        // Restart - show what we heard so far
+        setStatus(ctx, 'Hearing: "' + fullTranscript + '" (' + matchedCount + '/' + expectedWords.length + ')');
         try { createRecognition(); recognition.start(); } catch(e) {
-          // If restart fails, evaluate what we have
-          if (spokenCount > 0) forceStopAndEvaluate(ctx, bi, finalTranscript.trim());
+          if (matchedCount > 0) forceStopAndEvaluate(ctx, bi, fullTranscript);
           else stopRecording();
         }
       }
@@ -901,29 +915,131 @@ function startRecording(ctx) {
   recognition.start();
 }
 
-// Pick the best alternative transcript that matches expected words
-function pickBestAlternative(result, bubbleIndex, previousTranscript) {
-  const expected = bubbles[bubbleIndex].text.split(/\s+/).map(normalizeWord);
-  const prevWords = previousTranscript.trim().split(/\s+/).filter(w => w);
-  const startIdx = prevWords.length; // which expected word we're at
+// Pick the best alternative that matches expected words (using flexible alignment)
+function pickBestAlternative(result, bi) {
+  if (result.length <= 1) return result[0].transcript;
 
+  const expected = bubbles[bi].text.split(/\s+/);
   let bestTranscript = result[0].transcript;
-  let bestScore = 0;
+  let bestScore = -1;
 
   for (let a = 0; a < result.length; a++) {
-    const altWords = result[a].transcript.trim().split(/\s+/).map(normalizeWord).filter(w => w);
-    let score = 0;
-    altWords.forEach((w, i) => {
-      const expIdx = startIdx + i;
-      if (expIdx < expected.length) {
-        if (w === expected[expIdx]) score += 2;
-        else if (levenshtein(w, expected[expIdx]) <= 1) score += 1;
-      }
-    });
+    const text = result[a].transcript.trim();
+    const alignment = flexAlign(expected, text);
+    const score = alignment.filter(x => x.status === 'correct').length;
     if (score > bestScore) { bestScore = score; bestTranscript = result[a].transcript; }
   }
 
   return bestTranscript;
+}
+
+// ===== FLEXIBLE ALIGNMENT =====
+// Instead of strict word-by-word positional matching, this scans through
+// the spoken text trying to find each expected word in order.
+// It handles: merged words ("canbe" matches "can"+"be"), extra filler words,
+// and short words that get swallowed into adjacent words.
+function flexAlign(expectedWords, spokenText) {
+  const spokenNorm = normalizeWord(spokenText); // full normalized string (no spaces distinction)
+  const spokenWords = spokenText.trim().split(/\s+/).map(normalizeWord).filter(w => w);
+  const result = expectedWords.map(w => ({ word: w, status: 'pending' })); // pending, correct, incorrect
+
+  // Strategy 1: Try character-level scanning through the spoken string
+  // This catches merged words like "canbe" matching "can" then "be"
+  let charPos = 0;
+  const charResults = expectedWords.map(w => {
+    const norm = normalizeWord(w);
+    if (!norm) return 'correct'; // empty after normalization = punctuation only
+
+    // Look for this word starting from current position in the normalized spoken string
+    const idx = spokenNorm.indexOf(norm, charPos);
+    if (idx !== -1 && idx <= charPos + 5) {
+      // Found it close to where we expect it
+      charPos = idx + norm.length;
+      return 'correct';
+    }
+    // Try fuzzy: check if there's a close match nearby
+    // Extract a chunk of similar length and compare
+    const chunk = spokenNorm.substring(charPos, charPos + norm.length + 2);
+    if (chunk.length >= norm.length - 1 && levenshtein(chunk.substring(0, norm.length), norm) <= 1) {
+      charPos += norm.length;
+      return 'correct';
+    }
+    return 'pending'; // not found yet
+  });
+
+  // Strategy 2: Word-by-word positional matching (original approach)
+  const wordResults = expectedWords.map((w, i) => {
+    const norm = normalizeWord(w);
+    const got = spokenWords[i] || '';
+    if (norm === got || levenshtein(norm, got) <= 1) return 'correct';
+    return got ? 'incorrect' : 'pending';
+  });
+
+  // Strategy 3: Greedy word matching - consume spoken words to match expected
+  let si = 0;
+  const greedyResults = expectedWords.map(w => {
+    const norm = normalizeWord(w);
+    if (!norm) return 'correct';
+    if (si >= spokenWords.length) return 'pending';
+
+    // Direct match
+    if (norm === spokenWords[si] || levenshtein(norm, spokenWords[si]) <= 1) {
+      si++;
+      return 'correct';
+    }
+
+    // Check if this expected word is part of a merged spoken word
+    // e.g., spoken "canbe" should match expected "can" then "be"
+    const sw = spokenWords[si];
+    if (sw.startsWith(norm) || levenshtein(sw.substring(0, norm.length), norm) <= 1) {
+      // This word is the start of a merged word - consume the prefix
+      spokenWords[si] = sw.substring(norm.length);
+      if (!spokenWords[si]) si++;
+      return 'correct';
+    }
+
+    // Check if spoken word contains this expected word somewhere
+    if (sw.includes(norm)) {
+      return 'correct'; // don't advance si, next expected word might also be in this merged word
+    }
+
+    // Skip this spoken word (might be filler) and try next
+    if (si + 1 < spokenWords.length) {
+      const next = spokenWords[si + 1];
+      if (norm === next || levenshtein(norm, next) <= 1) {
+        si += 2;
+        return 'correct';
+      }
+    }
+
+    si++;
+    return 'incorrect';
+  });
+
+  // Combine strategies: for each word, use the best result
+  // Priority: correct > incorrect > pending
+  const priority = { correct: 3, incorrect: 2, pending: 1 };
+  for (let i = 0; i < expectedWords.length; i++) {
+    const best = [charResults[i], wordResults[i], greedyResults[i]]
+      .sort((a, b) => (priority[b] || 0) - (priority[a] || 0))[0];
+    // Prefer 'correct' from any strategy, then 'incorrect', then 'pending'
+    if (charResults[i] === 'correct' || wordResults[i] === 'correct' || greedyResults[i] === 'correct') {
+      result[i].status = 'correct';
+    } else if (wordResults[i] === 'incorrect' || greedyResults[i] === 'incorrect') {
+      result[i].status = 'incorrect';
+    }
+    // else stays 'pending'
+  }
+
+  return result;
+}
+
+function applyAlignment(ctx, alignment) {
+  const prefix = ctx === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
+  const wordEls = document.querySelectorAll('#' + prefix + ' .word');
+  alignment.forEach((a, i) => {
+    if (i < wordEls.length) wordEls[i].className = 'word ' + a.status;
+  });
 }
 
 function forceStopAndEvaluate(ctx, bi, spoken) {
@@ -947,29 +1063,24 @@ function setStatus(ctx, t) { document.getElementById(ctx === 'popup' ? 'popupSta
 function hideScore(ctx) { document.getElementById(ctx === 'popup' ? 'popupScore' : 'scoreDisplay').classList.remove('visible'); }
 
 function updateHighlights(ctx, bi, spoken) {
-  const exp = bubbles[bi].text.split(/\s+/).map(normalizeWord);
-  const got = spoken.split(/\s+/).map(normalizeWord).filter(w => w);
-  const prefix = ctx === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
-  document.querySelectorAll('#' + prefix + ' .word').forEach((el, i) => {
-    if (i < got.length) el.className = (exp[i] === got[i] || levenshtein(exp[i], got[i]) <= 1) ? 'word correct' : 'word incorrect';
-    else el.className = 'word pending';
-  });
+  const alignment = flexAlign(bubbles[bi].text.split(/\s+/), spoken);
+  applyAlignment(ctx, alignment);
 }
 
 function evaluate(ctx, bi, spoken) {
   if (!spoken) { setStatus(ctx, 'No speech detected. Try again!'); return; }
 
-  const exp = bubbles[bi].text.split(/\s+/).map(normalizeWord);
-  const got = spoken.split(/\s+/).map(normalizeWord).filter(w => w);
-  let correct = 0; const bad = [];
-  exp.forEach((w, i) => {
-    const g = got[i] || '';
-    if (w === g || levenshtein(w, g) <= 1) correct++;
-    else bad.push(bubbles[bi].text.split(/\s+/)[i]);
+  const expectedWords = bubbles[bi].text.split(/\s+/);
+  const alignment = flexAlign(expectedWords, spoken);
+  applyAlignment(ctx, alignment);
+
+  const correct = alignment.filter(a => a.status === 'correct').length;
+  const bad = [];
+  alignment.forEach((a, i) => {
+    if (a.status !== 'correct') bad.push(expectedWords[i]);
   });
 
-  const score = Math.round((correct / exp.length) * 100);
-  updateHighlights(ctx, bi, spoken);
+  const score = Math.round((correct / expectedWords.length) * 100);
 
   const pre = ctx === 'popup' ? 'popup' : '';
   const sEl = document.getElementById(pre ? 'popupScore' : 'scoreDisplay');
@@ -994,11 +1105,10 @@ function evaluate(ctx, bi, spoken) {
   });
 
   sEl.classList.add('visible');
-  setStatus(ctx, correct + '/' + exp.length + ' words correct.');
+  setStatus(ctx, correct + '/' + expectedWords.length + ' words correct. Heard: "' + spoken + '"');
 
   if (ctx === 'popup') {
     renderProgressDots();
-    // Running mode auto-advance
     if (runningMode && score >= 70) {
       setTimeout(() => {
         if (popupCurrentIndex < bubbles.length - 1) { popupCurrentIndex++; renderPopup(); }
