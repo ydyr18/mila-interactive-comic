@@ -256,6 +256,7 @@
 <div class="admin-bar">
   <span>Admin Mode - Drag to move, edges to resize, drag empty space to select multiple</span>
   <button class="save-btn" onclick="savePositions()">Save Positions</button>
+  <button class="save-btn" onclick="exportPositions()">Export to Clipboard</button>
   <button onclick="resetPositions()">Reset to Default</button>
   <button onclick="toggleAdmin()">Exit Admin</button>
 </div>
@@ -406,6 +407,26 @@ function savePositions() {
   });
   localStorage.setItem('comic-positions', JSON.stringify(data));
   alert('Positions saved!');
+}
+
+function exportPositions() {
+  const data = { bubbles: bubbles.map(b => ({ ...b.pos })), words: {} };
+  bubbles.forEach((b, bi) => {
+    const els = document.querySelectorAll('.word-overlay[data-bubble="' + bi + '"]');
+    if (els.length) {
+      data.words[bi] = [];
+      els.forEach(el => data.words[bi].push({
+        left: parseFloat(el.style.left), top: parseFloat(el.style.top),
+        width: parseFloat(el.style.width), height: parseFloat(el.style.height)
+      }));
+    }
+  });
+  const json = JSON.stringify(data);
+  navigator.clipboard.writeText(json).then(() => {
+    alert('Positions copied to clipboard! Paste it to Claude to embed as defaults.');
+  }).catch(() => {
+    prompt('Copy this JSON:', json);
+  });
 }
 
 function resetPositions() {
