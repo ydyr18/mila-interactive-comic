@@ -6,7 +6,6 @@
 <title>Mila's Interactive Comic - The Secret</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Comic+Neue:wght@400;700&display=swap');
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
@@ -19,8 +18,7 @@
 
   body::before {
     content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background-image:
       radial-gradient(2px 2px at 20% 30%, rgba(255,200,50,0.3), transparent),
       radial-gradient(2px 2px at 80% 20%, rgba(100,200,255,0.3), transparent),
@@ -28,629 +26,225 @@
       radial-gradient(1px 1px at 30% 70%, rgba(255,255,100,0.3), transparent),
       radial-gradient(1px 1px at 70% 50%, rgba(100,255,200,0.2), transparent);
     animation: sparkle 4s ease-in-out infinite alternate;
-    pointer-events: none;
-    z-index: 0;
+    pointer-events: none; z-index: 0;
   }
-
   @keyframes sparkle { 0% { opacity: 0.5; } 100% { opacity: 1; } }
 
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    position: relative;
-    z-index: 1;
-  }
-
+  .container { max-width: 800px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
   .header { text-align: center; margin-bottom: 20px; }
-
   .header h1 {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 2rem; font-weight: 700;
     background: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     margin-bottom: 6px;
   }
-
   .header p { color: #b8a9d4; font-size: 0.95rem; }
 
-  /* Mode Selector */
-  .mode-selector {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-
+  .mode-selector { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
   .mode-btn {
-    padding: 10px 20px;
-    border: 2px solid rgba(255,215,0,0.3);
-    border-radius: 50px;
-    background: rgba(255,255,255,0.05);
-    color: #d4c5f0;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 10px 20px; border: 2px solid rgba(255,215,0,0.3); border-radius: 50px;
+    background: rgba(255,255,255,0.05); color: #d4c5f0; font-family: 'Fredoka', sans-serif;
+    font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+    display: flex; align-items: center; gap: 8px;
   }
-
-  .mode-btn:hover {
-    background: rgba(255,215,0,0.1);
-    border-color: rgba(255,215,0,0.6);
-    color: #fff;
-    transform: translateY(-2px);
-  }
-
-  .mode-btn.active {
-    background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,140,0,0.2));
-    border-color: #ffd700;
-    color: #ffd700;
-    box-shadow: 0 0 20px rgba(255,215,0,0.2);
-  }
-
+  .mode-btn:hover { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.6); color: #fff; transform: translateY(-2px); }
+  .mode-btn.active { background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,140,0,0.2)); border-color: #ffd700; color: #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
   .mode-icon { font-size: 1.3rem; }
 
-  /* Instructions */
   .instructions {
-    text-align: center;
-    padding: 12px;
-    background: rgba(255,215,0,0.08);
-    border-radius: 10px;
-    margin-bottom: 16px;
-    font-size: 0.9rem;
-    color: #d4c5f0;
+    text-align: center; padding: 12px; background: rgba(255,215,0,0.08);
+    border-radius: 10px; margin-bottom: 16px; font-size: 0.9rem; color: #d4c5f0;
     border: 1px solid rgba(255,215,0,0.15);
   }
 
-  /* Comic Container */
   .comic-wrapper {
-    position: relative;
-    width: 100%;
-    border-radius: 16px;
-    overflow: hidden;
+    position: relative; width: 100%; border-radius: 16px; overflow: hidden;
     box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 60px rgba(100,60,200,0.15);
     border: 2px solid rgba(255,215,0,0.2);
   }
-
   .comic-wrapper img { width: 100%; display: block; }
 
-  /* Bubble Overlays */
+  /* Overlays */
   .bubble-overlay {
-    position: absolute;
-    cursor: pointer;
-    border-radius: 12px;
-    transition: all 0.2s ease;
-    z-index: 10;
+    position: absolute; cursor: pointer; border-radius: 12px;
+    transition: background 0.2s, box-shadow 0.2s; z-index: 10;
   }
+  .bubble-overlay:hover { background: rgba(255,215,0,0.15); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+  .bubble-overlay.playing { background: rgba(255,215,0,0.2); box-shadow: 0 0 30px rgba(255,215,0,0.5); animation: pulse-glow 1s ease-in-out infinite; }
+  @keyframes pulse-glow { 0%,100% { box-shadow: 0 0 15px rgba(255,215,0,0.3); } 50% { box-shadow: 0 0 35px rgba(255,215,0,0.6); } }
 
-  .bubble-overlay:hover {
-    background: rgba(255,215,0,0.15);
-    box-shadow: 0 0 20px rgba(255,215,0,0.3);
-  }
-
-  .bubble-overlay.playing {
-    background: rgba(255,215,0,0.2);
-    box-shadow: 0 0 30px rgba(255,215,0,0.5);
-    animation: pulse-glow 1s ease-in-out infinite;
-  }
-
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 15px rgba(255,215,0,0.3); }
-    50% { box-shadow: 0 0 35px rgba(255,215,0,0.6); }
-  }
-
-  /* Word overlays */
   .word-overlay {
-    position: absolute;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.15s ease;
-    z-index: 15;
-    display: none;
+    position: absolute; cursor: pointer; border-radius: 4px;
+    transition: background 0.15s, box-shadow 0.15s; z-index: 15; display: none;
   }
-
-  .word-overlay:hover {
-    background: rgba(100,200,255,0.25);
-    box-shadow: 0 0 10px rgba(100,200,255,0.4);
-  }
-
-  .word-overlay.playing {
-    background: rgba(100,255,150,0.3);
-    box-shadow: 0 0 15px rgba(100,255,150,0.5);
-  }
-
+  .word-overlay:hover { background: rgba(100,200,255,0.25); box-shadow: 0 0 10px rgba(100,200,255,0.4); }
+  .word-overlay.playing { background: rgba(100,255,150,0.3); box-shadow: 0 0 15px rgba(100,255,150,0.5); }
   body.mode-words .word-overlay { display: block; }
   body.mode-words .bubble-overlay { pointer-events: none; }
 
   /* Admin Mode */
   .admin-toggle {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.2);
-    background: rgba(30,20,60,0.9);
-    color: #aaa;
-    font-size: 1.3rem;
-    cursor: pointer;
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
+    position: fixed; bottom: 20px; left: 20px; width: 44px; height: 44px;
+    border-radius: 50%; border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(30,20,60,0.9); color: #aaa; font-size: 1.3rem;
+    cursor: pointer; z-index: 200; display: flex; align-items: center; justify-content: center;
   }
-
   .admin-toggle:hover { border-color: #ffd700; color: #ffd700; }
   .admin-toggle.active { border-color: #ff4444; color: #ff4444; background: rgba(255,0,0,0.15); }
 
   body.mode-admin .bubble-overlay {
-    background: rgba(255,215,0,0.2);
-    border: 2px dashed rgba(255,215,0,0.6);
-    cursor: move;
+    background: rgba(255,215,0,0.15); border: 2px dashed rgba(255,215,0,0.6); cursor: move;
   }
-
+  body.mode-admin .bubble-overlay.selected {
+    background: rgba(255,215,0,0.3); border-color: #ffd700;
+    box-shadow: 0 0 12px rgba(255,215,0,0.5);
+  }
   body.mode-admin .word-overlay {
-    display: block;
-    background: rgba(100,200,255,0.15);
-    border: 1px dashed rgba(100,200,255,0.5);
-    cursor: move;
+    display: block; background: rgba(100,200,255,0.12);
+    border: 1px dashed rgba(100,200,255,0.5); cursor: move;
+  }
+  body.mode-admin .word-overlay.selected {
+    background: rgba(100,200,255,0.3); border-color: #8cf;
+    box-shadow: 0 0 8px rgba(100,200,255,0.5);
   }
 
   .admin-label {
-    position: absolute;
-    bottom: 100%;
-    left: 0;
-    background: rgba(0,0,0,0.85);
-    color: #ffd700;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    white-space: nowrap;
-    pointer-events: none;
-    display: none;
-    font-family: 'Comic Neue', cursive;
-    font-weight: 700;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    z-index: 20;
+    position: absolute; bottom: 100%; left: 0; background: rgba(0,0,0,0.85);
+    color: #ffd700; font-size: 10px; padding: 2px 6px; border-radius: 4px;
+    white-space: nowrap; pointer-events: none; display: none;
+    font-family: 'Comic Neue', cursive; font-weight: 700;
+    max-width: 200px; overflow: hidden; text-overflow: ellipsis; z-index: 20;
   }
-
   body.mode-admin .admin-label { display: block; }
 
   .word-admin-label {
-    position: absolute;
-    top: -14px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,50,0.9);
-    color: #8cf;
-    font-size: 9px;
-    padding: 1px 4px;
-    border-radius: 3px;
-    white-space: nowrap;
-    pointer-events: none;
-    display: none;
-    font-family: 'Comic Neue', cursive;
-    font-weight: 700;
-    z-index: 20;
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,50,0.9); color: #8cf; font-size: 9px; padding: 1px 4px;
+    border-radius: 3px; white-space: nowrap; pointer-events: none; display: none;
+    font-family: 'Comic Neue', cursive; font-weight: 700; z-index: 20;
   }
-
   body.mode-admin .word-admin-label { display: block; }
 
   .admin-bar {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255,0,0,0.15);
-    border-bottom: 2px solid #ff4444;
-    padding: 8px 20px;
-    z-index: 200;
-    text-align: center;
-    font-size: 0.85rem;
-    color: #ff8888;
+    display: none; position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(255,0,0,0.15); border-bottom: 2px solid #ff4444;
+    padding: 8px 20px; z-index: 200; font-size: 0.85rem; color: #ff8888;
     backdrop-filter: blur(10px);
   }
-
   body.mode-admin .admin-bar { display: flex; align-items: center; justify-content: center; gap: 15px; }
 
   .admin-bar button {
-    padding: 5px 14px;
-    border: 1px solid #ff6666;
-    border-radius: 6px;
-    background: rgba(255,0,0,0.2);
-    color: #ffaaaa;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 0.8rem;
-    cursor: pointer;
+    padding: 5px 14px; border: 1px solid #ff6666; border-radius: 6px;
+    background: rgba(255,0,0,0.2); color: #ffaaaa; font-family: 'Fredoka', sans-serif;
+    font-size: 0.8rem; cursor: pointer;
   }
-
   .admin-bar button:hover { background: rgba(255,0,0,0.35); }
   .admin-bar button.save-btn { border-color: #50fa7b; color: #50fa7b; background: rgba(0,200,0,0.15); }
   .admin-bar button.save-btn:hover { background: rgba(0,200,0,0.3); }
 
-  /* Reading Test Bottom Panel */
+  /* Marquee selection */
+  .marquee {
+    position: absolute; border: 2px dashed rgba(255,255,0,0.6);
+    background: rgba(255,255,0,0.08); z-index: 50; pointer-events: none; display: none;
+  }
+
+  /* Test panel */
   .test-panel {
-    display: none;
-    margin-top: 20px;
-    background: rgba(255,255,255,0.05);
-    border: 2px solid rgba(255,215,0,0.2);
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
+    display: none; margin-top: 20px; background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,215,0,0.2); border-radius: 16px; padding: 24px; text-align: center;
   }
-
   body.mode-test .test-panel { display: block; }
-
   .test-panel h3 { font-size: 1.3rem; color: #ffd700; margin-bottom: 15px; }
-
-  .test-bubble-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-
+  .test-bubble-selector { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
   .test-bubble-btn {
-    padding: 8px 16px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.05);
-    color: #d4c5f0;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
+    padding: 8px 16px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+    background: rgba(255,255,255,0.05); color: #d4c5f0; font-family: 'Fredoka', sans-serif;
+    font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
   }
-
-  .test-bubble-btn:hover, .test-bubble-btn.active {
-    border-color: #ffd700;
-    color: #ffd700;
-    background: rgba(255,215,0,0.1);
-  }
+  .test-bubble-btn:hover, .test-bubble-btn.active { border-color: #ffd700; color: #ffd700; background: rgba(255,215,0,0.1); }
 
   .test-text-display {
-    font-family: 'Comic Neue', cursive;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #fff;
-    background: rgba(0,0,0,0.3);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    line-height: 1.8;
-    min-height: 80px;
+    font-family: 'Comic Neue', cursive; font-size: 1.5rem; font-weight: 700;
+    color: #fff; background: rgba(0,0,0,0.3); border-radius: 12px;
+    padding: 20px; margin-bottom: 20px; line-height: 1.8; min-height: 80px;
   }
-
-  .test-text-display .word {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin: 0 2px;
-    transition: all 0.3s;
-    cursor: pointer;
-  }
-
+  .test-text-display .word { display: inline-block; padding: 2px 6px; border-radius: 4px; margin: 0 2px; transition: all 0.3s; cursor: pointer; }
   .test-text-display .word:hover { background: rgba(255,255,255,0.1); }
   .test-text-display .word.correct { color: #50fa7b; background: rgba(80,250,123,0.15); }
   .test-text-display .word.incorrect { color: #ff6b6b; background: rgba(255,107,107,0.15); text-decoration: underline wavy #ff6b6b; }
   .test-text-display .word.pending { color: rgba(255,255,255,0.4); }
 
   .record-btn {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    border: 3px solid #ffd700;
-    background: rgba(255,215,0,0.1);
-    color: #ffd700;
-    font-size: 1.8rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
+    width: 70px; height: 70px; border-radius: 50%; border: 3px solid #ffd700;
+    background: rgba(255,215,0,0.1); color: #ffd700; font-size: 1.8rem;
+    cursor: pointer; transition: all 0.3s; display: inline-flex;
+    align-items: center; justify-content: center; margin-bottom: 10px;
   }
-
   .record-btn:hover { background: rgba(255,215,0,0.2); transform: scale(1.05); }
-
-  .record-btn.recording {
-    border-color: #ff4444;
-    background: rgba(255,68,68,0.2);
-    color: #ff4444;
-    animation: record-pulse 1.5s ease-in-out infinite;
-  }
-
-  @keyframes record-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.4); }
-    50% { box-shadow: 0 0 0 15px rgba(255,68,68,0); }
-  }
+  .record-btn.recording { border-color: #ff4444; background: rgba(255,68,68,0.2); color: #ff4444; animation: record-pulse 1.5s ease-in-out infinite; }
+  @keyframes record-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.4); } 50% { box-shadow: 0 0 0 15px rgba(255,68,68,0); } }
 
   .test-status { font-size: 0.9rem; color: #b8a9d4; margin-top: 8px; min-height: 22px; }
-
-  .score-display {
-    display: none;
-    margin-top: 16px;
-    padding: 16px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-  }
-
+  .score-display { display: none; margin-top: 16px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 12px; }
   .score-display.visible { display: block; }
   .score-number { font-size: 2.5rem; font-weight: 700; }
-  .score-number.great { color: #50fa7b; }
-  .score-number.good { color: #ffd700; }
-  .score-number.practice { color: #ff8c42; }
+  .score-number.great { color: #50fa7b; } .score-number.good { color: #ffd700; } .score-number.practice { color: #ff8c42; }
   .score-message { font-size: 1rem; margin-top: 6px; }
-
-  .practice-words {
-    margin-top: 12px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-  }
-
+  .practice-words { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
   .practice-word {
-    padding: 6px 14px;
-    background: rgba(255,107,107,0.15);
-    border: 1px solid rgba(255,107,107,0.3);
-    border-radius: 20px;
-    color: #ff8c8c;
-    font-family: 'Comic Neue', cursive;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
+    padding: 6px 14px; background: rgba(255,107,107,0.15); border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 20px; color: #ff8c8c; font-family: 'Comic Neue', cursive;
+    font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
   }
-
   .practice-word:hover { background: rgba(255,107,107,0.3); transform: scale(1.08); }
   .practice-word.played { border-color: rgba(100,255,150,0.4); color: #8fc; background: rgba(100,255,150,0.1); }
-
-  .retry-btn {
-    margin-top: 12px;
-    padding: 8px 20px;
-    border: 2px solid #ffd700;
-    border-radius: 50px;
-    background: rgba(255,215,0,0.1);
-    color: #ffd700;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 0.9rem;
-    cursor: pointer;
-  }
-
+  .retry-btn { margin-top: 12px; padding: 8px 20px; border: 2px solid #ffd700; border-radius: 50px; background: rgba(255,215,0,0.1); color: #ffd700; font-family: 'Fredoka', sans-serif; font-size: 0.9rem; cursor: pointer; }
   .retry-btn:hover { background: rgba(255,215,0,0.2); }
 
-  /* ===== POPUP TEST MODAL ===== */
-  .popup-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 300;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(5px);
-  }
-
+  /* Popup */
+  .popup-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 300; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
   .popup-overlay.visible { display: flex; }
-
-  .popup-modal {
-    background: linear-gradient(135deg, #1e1450 0%, #2a1a6a 100%);
-    border: 2px solid rgba(255,215,0,0.3);
-    border-radius: 20px;
-    padding: 30px;
-    max-width: 550px;
-    width: 90%;
-    text-align: center;
-    position: relative;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  }
-
-  .popup-close {
-    position: absolute;
-    top: 12px;
-    right: 14px;
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 1.3rem;
-    cursor: pointer;
-  }
-
+  .popup-modal { background: linear-gradient(135deg, #1e1450, #2a1a6a); border: 2px solid rgba(255,215,0,0.3); border-radius: 20px; padding: 30px; max-width: 550px; width: 90%; text-align: center; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .popup-close { position: absolute; top: 12px; right: 14px; background: none; border: none; color: #888; font-size: 1.3rem; cursor: pointer; }
   .popup-close:hover { color: #fff; }
-
-  .popup-character {
-    font-size: 0.85rem;
-    color: #b8a9d4;
-    margin-bottom: 6px;
-  }
-
-  .popup-nav {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 18px;
-  }
-
-  .popup-nav button {
-    padding: 8px 18px;
-    border: 2px solid rgba(255,215,0,0.3);
-    border-radius: 50px;
-    background: rgba(255,215,0,0.08);
-    color: #ffd700;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
+  .popup-character { font-size: 0.85rem; color: #b8a9d4; margin-bottom: 6px; }
+  .popup-nav { display: flex; justify-content: center; gap: 12px; margin-top: 18px; }
+  .popup-nav button { padding: 8px 18px; border: 2px solid rgba(255,215,0,0.3); border-radius: 50px; background: rgba(255,215,0,0.08); color: #ffd700; font-family: 'Fredoka', sans-serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
   .popup-nav button:hover { background: rgba(255,215,0,0.2); transform: scale(1.05); }
   .popup-nav button:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
-
-  .popup-progress {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    margin-bottom: 15px;
-  }
-
-  .popup-progress-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    transition: all 0.3s;
-  }
-
+  .popup-progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 15px; }
+  .popup-progress-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: all 0.3s; }
   .popup-progress-dot.current { background: #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
   .popup-progress-dot.done { background: #50fa7b; }
   .popup-progress-dot.failed { background: #ff8c42; }
+  .running-toggle { margin-top: 12px; }
+  .running-toggle label { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #b8a9d4; cursor: pointer; }
+  .running-toggle input[type="checkbox"] { accent-color: #ffd700; width: 16px; height: 16px; }
 
-  .running-toggle {
-    margin-top: 12px;
-  }
-
-  .running-toggle label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-    color: #b8a9d4;
-    cursor: pointer;
-  }
-
-  .running-toggle input[type="checkbox"] {
-    accent-color: #ffd700;
-    width: 16px;
-    height: 16px;
-  }
-
-  /* Confetti Canvas */
-  #confettiCanvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 500;
-  }
-
-  /* Trophy overlay */
-  .trophy-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 400;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(5px);
-  }
-
+  #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 500; }
+  .trophy-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 400; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
   .trophy-overlay.visible { display: flex; }
-
-  .trophy-card {
-    text-align: center;
-    animation: trophy-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @keyframes trophy-in {
-    0% { transform: scale(0.3); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
+  .trophy-card { text-align: center; animation: trophy-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes trophy-in { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   .trophy-emoji { font-size: 6rem; }
   .trophy-title { font-size: 2rem; color: #ffd700; margin-top: 10px; font-weight: 700; }
   .trophy-sub { font-size: 1.1rem; color: #d4c5f0; margin-top: 8px; }
+  .trophy-dismiss { margin-top: 20px; padding: 10px 30px; border: 2px solid #ffd700; border-radius: 50px; background: rgba(255,215,0,0.15); color: #ffd700; font-family: 'Fredoka', sans-serif; font-size: 1rem; cursor: pointer; }
 
-  .trophy-dismiss {
-    margin-top: 20px;
-    padding: 10px 30px;
-    border: 2px solid #ffd700;
-    border-radius: 50px;
-    background: rgba(255,215,0,0.15);
-    color: #ffd700;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-
-  /* Audio indicator */
-  .audio-indicator {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(30,20,60,0.95);
-    border: 2px solid #ffd700;
-    border-radius: 50px;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.3s;
-    z-index: 50;
-  }
-
+  .audio-indicator { position: fixed; bottom: 20px; right: 20px; background: rgba(30,20,60,0.95); border: 2px solid #ffd700; border-radius: 50px; padding: 10px 20px; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(20px); transition: all 0.3s; z-index: 50; }
   .audio-indicator.visible { opacity: 1; transform: translateY(0); }
-
   .audio-bars { display: flex; gap: 3px; align-items: center; height: 20px; }
-
-  .audio-bar {
-    width: 3px;
-    background: #ffd700;
-    border-radius: 2px;
-    animation: audio-bounce 0.6s ease-in-out infinite;
-  }
-
-  .audio-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
-  .audio-bar:nth-child(2) { height: 14px; animation-delay: 0.1s; }
-  .audio-bar:nth-child(3) { height: 20px; animation-delay: 0.2s; }
-  .audio-bar:nth-child(4) { height: 14px; animation-delay: 0.3s; }
+  .audio-bar { width: 3px; background: #ffd700; border-radius: 2px; animation: audio-bounce 0.6s ease-in-out infinite; }
+  .audio-bar:nth-child(1) { height: 8px; } .audio-bar:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+  .audio-bar:nth-child(3) { height: 20px; animation-delay: 0.2s; } .audio-bar:nth-child(4) { height: 14px; animation-delay: 0.3s; }
   .audio-bar:nth-child(5) { height: 8px; animation-delay: 0.4s; }
+  @keyframes audio-bounce { 0%,100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
 
-  @keyframes audio-bounce {
-    0%, 100% { transform: scaleY(0.5); }
-    50% { transform: scaleY(1); }
-  }
-
-  /* Tooltip */
-  .tooltip {
-    position: fixed;
-    background: rgba(30,20,60,0.95);
-    border: 1px solid rgba(255,215,0,0.4);
-    border-radius: 8px;
-    padding: 8px 14px;
-    color: #ffd700;
-    font-size: 0.9rem;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s;
-    z-index: 100;
-    white-space: nowrap;
-    font-family: 'Comic Neue', cursive;
-    font-weight: 700;
-  }
-
+  .tooltip { position: fixed; background: rgba(30,20,60,0.95); border: 1px solid rgba(255,215,0,0.4); border-radius: 8px; padding: 8px 14px; color: #ffd700; font-size: 0.9rem; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 100; white-space: nowrap; font-family: 'Comic Neue', cursive; font-weight: 700; }
   .tooltip.visible { opacity: 1; }
 
-  /* Responsive */
   @media (max-width: 600px) {
-    .container { padding: 12px; }
-    .header h1 { font-size: 1.5rem; }
+    .container { padding: 12px; } .header h1 { font-size: 1.5rem; }
     .mode-btn { padding: 8px 14px; font-size: 0.85rem; }
     .test-text-display { font-size: 1.2rem; padding: 15px; }
     .popup-modal { padding: 20px; }
@@ -659,9 +253,8 @@
 </head>
 <body class="mode-bubbles">
 
-<!-- Admin bar -->
 <div class="admin-bar">
-  <span>Admin Mode - Drag bubbles &amp; words to position them</span>
+  <span>Admin Mode - Drag to move, edges to resize, drag empty space to select multiple</span>
   <button class="save-btn" onclick="savePositions()">Save Positions</button>
   <button onclick="resetPositions()">Reset to Default</button>
   <button onclick="toggleAdmin()">Exit Admin</button>
@@ -672,43 +265,25 @@
     <h1>Mila's Interactive Comic</h1>
     <p>Episode 1: The Secret</p>
   </div>
-
   <div class="mode-selector">
-    <button class="mode-btn active" data-mode="bubbles" onclick="setMode('bubbles')">
-      <span class="mode-icon">&#x1F4AC;</span> Listen to Bubbles
-    </button>
-    <button class="mode-btn" data-mode="words" onclick="setMode('words')">
-      <span class="mode-icon">&#x1F524;</span> Learn Words
-    </button>
-    <button class="mode-btn" data-mode="test" onclick="setMode('test')">
-      <span class="mode-icon">&#x1F3A4;</span> Reading Test
-    </button>
+    <button class="mode-btn active" data-mode="bubbles" onclick="setMode('bubbles')"><span class="mode-icon">&#x1F4AC;</span> Listen to Bubbles</button>
+    <button class="mode-btn" data-mode="words" onclick="setMode('words')"><span class="mode-icon">&#x1F524;</span> Learn Words</button>
+    <button class="mode-btn" data-mode="test" onclick="setMode('test')"><span class="mode-icon">&#x1F3A4;</span> Reading Test</button>
   </div>
-
-  <div class="instructions" id="instructions">
-    &#x1F4AC; Click any speech bubble to hear it read aloud!
-  </div>
+  <div class="instructions" id="instructions">&#x1F4AC; Click any speech bubble to hear it read aloud!</div>
 
   <div class="comic-wrapper" id="comicWrapper">
-    <img src="comic-page.png" alt="The Secret - Comic Page" id="comicImage" onload="initApp()">
-    <!-- Bubble overlays are created dynamically by JS -->
+    <img src="comic-page.png" alt="The Secret" id="comicImage" onload="initApp()">
+    <div class="marquee" id="marquee"></div>
   </div>
 
-  <!-- Bottom Reading Test Panel -->
   <div class="test-panel" id="testPanel">
     <h3>&#x1F3A4; Reading Test</h3>
-    <p style="color:#b8a9d4; margin-bottom:15px; font-size:0.9rem;">Choose a speech bubble from the comic or the list below, then read it out loud!</p>
-
+    <p style="color:#b8a9d4; margin-bottom:15px; font-size:0.9rem;">Choose a bubble from the comic or the list below!</p>
     <div class="test-bubble-selector" id="testBubbleSelector"></div>
-
-    <div class="test-text-display" id="testTextDisplay">
-      &#x2B06; Select a bubble above to start
-    </div>
-
+    <div class="test-text-display" id="testTextDisplay">&#x2B06; Select a bubble above to start</div>
     <button class="record-btn" id="recordBtn" onclick="toggleRecording('panel')">&#x1F3A4;</button>
-
     <div class="test-status" id="testStatus">Press the microphone to start recording</div>
-
     <div class="score-display" id="scoreDisplay">
       <div class="score-number" id="scoreNumber"></div>
       <div class="score-message" id="scoreMessage"></div>
@@ -718,37 +293,25 @@
   </div>
 </div>
 
-<!-- Admin toggle button -->
 <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()" title="Admin: Position overlays">&#x2699;</button>
 
-<!-- Popup Test Modal -->
 <div class="popup-overlay" id="popupOverlay">
   <div class="popup-modal">
     <button class="popup-close" onclick="closePopup()">&#x2715;</button>
-
     <div class="popup-progress" id="popupProgress"></div>
     <div class="popup-character" id="popupCharacter"></div>
-
     <div class="test-text-display" id="popupTextDisplay" style="font-size:1.4rem;"></div>
-
     <button class="record-btn" id="popupRecordBtn" onclick="toggleRecording('popup')">&#x1F3A4;</button>
-
     <div class="test-status" id="popupStatus">Press the microphone to start reading</div>
-
     <div class="score-display" id="popupScore">
       <div class="score-number" id="popupScoreNumber"></div>
       <div class="score-message" id="popupScoreMessage"></div>
       <div class="practice-words" id="popupPracticeWords"></div>
       <button class="retry-btn" onclick="retryTest('popup')">&#x1F504; Try Again</button>
     </div>
-
     <div class="running-toggle">
-      <label>
-        <input type="checkbox" id="runningMode" onchange="onRunningModeChange()">
-        Auto-advance to next bubble when correct
-      </label>
+      <label><input type="checkbox" id="runningMode" onchange="runningMode=this.checked"> Auto-advance to next bubble when correct</label>
     </div>
-
     <div class="popup-nav">
       <button id="popupPrev" onclick="popupNavigate(-1)">&#x2B05; Previous</button>
       <button id="popupNext" onclick="popupNavigate(1)">Next &#x27A1;</button>
@@ -756,7 +319,6 @@
   </div>
 </div>
 
-<!-- Trophy Overlay -->
 <div class="trophy-overlay" id="trophyOverlay">
   <div class="trophy-card">
     <div class="trophy-emoji">&#x1F3C6;&#x2728;</div>
@@ -766,22 +328,16 @@
   </div>
 </div>
 
-<!-- Confetti Canvas -->
 <canvas id="confettiCanvas"></canvas>
 
-<!-- Audio indicator -->
 <div class="audio-indicator" id="audioIndicator">
-  <div class="audio-bars">
-    <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
-  </div>
+  <div class="audio-bars"><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div></div>
   <span id="audioText" style="color:#ffd700; font-size:0.85rem;"></span>
 </div>
-
-<!-- Tooltip -->
 <div class="tooltip" id="tooltip"></div>
 
 <script>
-// ===== BUBBLE DATA =====
+// ===== DATA =====
 const bubbles = [
   { character: 'Mila', text: "Mom, I can't go. I'm not a real wizard.", audio: 'audio/bubble1_mila.mp3',
     defaultPos: { left: 17, top: 3.5, width: 30, height: 8.5 }},
@@ -797,69 +353,55 @@ const bubbles = [
     defaultPos: { left: 1, top: 58, width: 17, height: 7 }},
 ];
 
-// State
+// ===== STATE =====
 let currentMode = 'bubbles';
 let currentAudio = null;
 let isAdminMode = false;
 let isRecording = false;
 let recognition = null;
-let activeTestContext = null; // 'panel' or 'popup'
+let activeTestContext = null;
 let panelSelectedBubble = null;
 let popupCurrentIndex = 0;
-let popupBubbleResults = {}; // index -> 'passed' | 'failed'
+let popupBubbleResults = {};
 let runningMode = false;
-let dragState = null;
 
-// ===== INITIALIZATION =====
+// Admin state
+let dragState = null;
+let selectedOverlays = new Set();
+let marqueeState = null;
+const EDGE_PX = 8; // edge detection threshold in pixels
+
+// ===== INIT =====
 function initApp() {
   loadPositions();
   createBubbleOverlays();
   createWordOverlays();
   initTestPanel();
+  setupMarquee();
 }
 
 function loadPositions() {
   const saved = localStorage.getItem('comic-positions');
   if (saved) {
     try {
-      const positions = JSON.parse(saved);
-      // Apply saved positions to bubbles
-      if (positions.bubbles) {
-        positions.bubbles.forEach((pos, i) => {
-          if (bubbles[i]) bubbles[i].pos = pos;
-        });
-      }
-      if (positions.words) {
-        bubbles.forEach((b, i) => {
-          if (positions.words[i]) b.wordPositions = positions.words[i];
-        });
-      }
+      const data = JSON.parse(saved);
+      if (data.bubbles) data.bubbles.forEach((p, i) => { if (bubbles[i]) bubbles[i].pos = p; });
+      if (data.words) bubbles.forEach((b, i) => { if (data.words[i]) b.wordPositions = data.words[i]; });
     } catch(e) {}
   }
-  // Default positions for any not loaded
-  bubbles.forEach(b => {
-    if (!b.pos) b.pos = { ...b.defaultPos };
-  });
+  bubbles.forEach(b => { if (!b.pos) b.pos = { ...b.defaultPos }; });
 }
 
 function savePositions() {
-  const data = {
-    bubbles: bubbles.map(b => ({ ...b.pos })),
-    words: {}
-  };
-  // Save word positions
+  const data = { bubbles: bubbles.map(b => ({ ...b.pos })), words: {} };
   bubbles.forEach((b, bi) => {
-    const wordEls = document.querySelectorAll(`.word-overlay[data-bubble="${bi}"]`);
-    if (wordEls.length) {
+    const els = document.querySelectorAll('.word-overlay[data-bubble="' + bi + '"]');
+    if (els.length) {
       data.words[bi] = [];
-      wordEls.forEach(el => {
-        data.words[bi].push({
-          left: parseFloat(el.style.left),
-          top: parseFloat(el.style.top),
-          width: parseFloat(el.style.width),
-          height: parseFloat(el.style.height)
-        });
-      });
+      els.forEach(el => data.words[bi].push({
+        left: parseFloat(el.style.left), top: parseFloat(el.style.top),
+        width: parseFloat(el.style.width), height: parseFloat(el.style.height)
+      }));
     }
   });
   localStorage.setItem('comic-positions', JSON.stringify(data));
@@ -868,227 +410,296 @@ function savePositions() {
 
 function resetPositions() {
   localStorage.removeItem('comic-positions');
-  bubbles.forEach(b => {
-    b.pos = { ...b.defaultPos };
-    delete b.wordPositions;
-  });
-  // Recreate overlays
+  bubbles.forEach(b => { b.pos = { ...b.defaultPos }; delete b.wordPositions; });
   document.querySelectorAll('.bubble-overlay, .word-overlay').forEach(el => el.remove());
   createBubbleOverlays();
   createWordOverlays();
 }
 
-// ===== BUBBLE OVERLAYS =====
+// ===== OVERLAYS =====
+function applyPos(el, p) {
+  el.style.left = p.left + '%'; el.style.top = p.top + '%';
+  el.style.width = p.width + '%'; el.style.height = p.height + '%';
+}
+
 function createBubbleOverlays() {
   const wrapper = document.getElementById('comicWrapper');
-  bubbles.forEach((bubble, i) => {
+  bubbles.forEach((b, i) => {
     const div = document.createElement('div');
     div.className = 'bubble-overlay';
     div.id = 'bubble' + i;
     div.dataset.index = i;
-    applyPosition(div, bubble.pos);
+    div.dataset.overlayType = 'bubble';
+    applyPos(div, b.pos);
 
-    // Admin label
     const label = document.createElement('div');
     label.className = 'admin-label';
-    label.textContent = bubble.character + ': ' + bubble.text.substring(0, 40) + (bubble.text.length > 40 ? '...' : '');
+    label.textContent = b.character + ': ' + b.text.substring(0, 40) + (b.text.length > 40 ? '...' : '');
     div.appendChild(label);
 
-    div.addEventListener('click', () => onBubbleClick(i));
-    div.addEventListener('mousedown', (e) => startDrag(e, div, 'bubble', i));
-
+    div.addEventListener('click', (e) => { if (!dragState) onBubbleClick(i); });
+    div.addEventListener('mousedown', (e) => onOverlayMouseDown(e, div));
+    div.addEventListener('mousemove', (e) => onOverlayMouseMove(e, div));
     wrapper.appendChild(div);
   });
 }
 
-function applyPosition(el, pos) {
-  el.style.left = pos.left + '%';
-  el.style.top = pos.top + '%';
-  el.style.width = pos.width + '%';
-  el.style.height = pos.height + '%';
-}
-
-// ===== WORD OVERLAYS =====
 function createWordOverlays() {
   const wrapper = document.getElementById('comicWrapper');
-
-  bubbles.forEach((bubble, bi) => {
-    const words = bubble.text.replace(/[.,!?'"]/g, '').split(/\s+/);
-    const pos = bubble.pos;
-
-    // Check for saved word positions
-    const savedWordPos = bubble.wordPositions;
-
-    const maxWordsPerRow = Math.max(3, Math.floor(pos.width / 7));
-    const rows = [];
-    let row = [];
-    words.forEach(w => { row.push(w); if (row.length >= maxWordsPerRow) { rows.push([...row]); row = []; } });
+  bubbles.forEach((b, bi) => {
+    const words = b.text.replace(/[.,!?'"]/g, '').split(/\s+/);
+    const pos = b.pos;
+    const saved = b.wordPositions;
+    const maxPerRow = Math.max(3, Math.floor(pos.width / 7));
+    const rows = []; let row = [];
+    words.forEach(w => { row.push(w); if (row.length >= maxPerRow) { rows.push([...row]); row = []; } });
     if (row.length) rows.push(row);
-
     const rowH = pos.height / (rows.length + 0.5);
     const pad = 1.5;
-    let wordIndex = 0;
-
+    let wi = 0;
     rows.forEach((r, ri) => {
-      const totalChars = r.reduce((s, w) => s + w.length, 0);
-      const availW = pos.width - pad * 2;
+      const totalC = r.reduce((s, w) => s + w.length, 0);
+      const avW = pos.width - pad * 2;
       let x = pos.left + pad;
-
       r.forEach(word => {
-        const w = (word.length / totalChars) * availW * 0.85;
-
+        const ww = (word.length / totalC) * avW * 0.85;
         const div = document.createElement('div');
         div.className = 'word-overlay';
         div.dataset.word = word;
         div.dataset.bubble = bi;
-        div.dataset.wordIndex = wordIndex;
+        div.dataset.wordIndex = wi;
+        div.dataset.overlayType = 'word';
+        if (saved && saved[wi]) applyPos(div, saved[wi]);
+        else { div.style.left = x + '%'; div.style.top = (pos.top + pad * 0.5 + ri * rowH) + '%'; div.style.width = ww + '%'; div.style.height = rowH + '%'; }
 
-        // Use saved position or calculated default
-        if (savedWordPos && savedWordPos[wordIndex]) {
-          applyPosition(div, savedWordPos[wordIndex]);
-        } else {
-          div.style.left = x + '%';
-          div.style.top = (pos.top + pad * 0.5 + ri * rowH) + '%';
-          div.style.width = w + '%';
-          div.style.height = rowH + '%';
-        }
-
-        // Word label for admin mode
-        const wLabel = document.createElement('div');
-        wLabel.className = 'word-admin-label';
-        wLabel.textContent = word;
-        div.appendChild(wLabel);
+        const wl = document.createElement('div');
+        wl.className = 'word-admin-label';
+        wl.textContent = word;
+        div.appendChild(wl);
 
         div.addEventListener('click', (e) => {
           e.stopPropagation();
-          if (currentMode === 'words' && !isAdminMode) playWordAudio(word, div);
+          if (currentMode === 'words' && !isAdminMode) { playWordAudio(word, div); }
         });
-
         div.addEventListener('mouseenter', (e) => {
           if (currentMode === 'words' && !isAdminMode) {
-            const tooltip = document.getElementById('tooltip');
-            tooltip.innerHTML = '&#x1F50A; ' + word;
-            tooltip.style.left = e.clientX + 12 + 'px';
-            tooltip.style.top = e.clientY - 40 + 'px';
-            tooltip.classList.add('visible');
+            const tt = document.getElementById('tooltip');
+            tt.innerHTML = '&#x1F50A; ' + word;
+            tt.style.left = e.clientX + 12 + 'px'; tt.style.top = e.clientY - 40 + 'px';
+            tt.classList.add('visible');
           }
         });
-
-        div.addEventListener('mouseleave', () => {
-          document.getElementById('tooltip').classList.remove('visible');
-        });
-
-        div.addEventListener('mousedown', (e) => startDrag(e, div, 'word', wordIndex));
-
+        div.addEventListener('mouseleave', () => document.getElementById('tooltip').classList.remove('visible'));
+        div.addEventListener('mousedown', (e) => { e.stopPropagation(); onOverlayMouseDown(e, div); });
+        div.addEventListener('mousemove', (e) => onOverlayMouseMove(e, div));
         wrapper.appendChild(div);
-        x += w + (availW * 0.15 / r.length);
-        wordIndex++;
+        x += ww + (avW * 0.15 / r.length);
+        wi++;
       });
     });
   });
 }
 
-// ===== DRAG & DROP (Admin Mode) =====
-function startDrag(e, el, type, index) {
+// ===== ADMIN: EDGE DETECT + DRAG/RESIZE =====
+function getEdge(e, el) {
+  const r = el.getBoundingClientRect();
+  const x = e.clientX, y = e.clientY;
+  let edge = '';
+  if (y - r.top < EDGE_PX) edge += 'n';
+  else if (r.bottom - y < EDGE_PX) edge += 's';
+  if (x - r.left < EDGE_PX) edge += 'w';
+  else if (r.right - x < EDGE_PX) edge += 'e';
+  return edge;
+}
+
+function edgeCursor(edge) {
+  if (edge === 'e' || edge === 'w') return 'ew-resize';
+  if (edge === 'n' || edge === 's') return 'ns-resize';
+  if (edge === 'ne' || edge === 'sw') return 'nesw-resize';
+  if (edge === 'nw' || edge === 'se') return 'nwse-resize';
+  return 'move';
+}
+
+function onOverlayMouseMove(e, el) {
+  if (!isAdminMode || dragState) return;
+  const edge = getEdge(e, el);
+  el.style.cursor = edgeCursor(edge);
+}
+
+function onOverlayMouseDown(e, el) {
   if (!isAdminMode) return;
   e.preventDefault();
   e.stopPropagation();
 
+  const edge = getEdge(e, el);
   const wrapper = document.getElementById('comicWrapper');
-  const rect = wrapper.getBoundingClientRect();
+  const wr = wrapper.getBoundingClientRect();
 
-  dragState = {
-    el,
-    type,
-    index,
-    startX: e.clientX,
-    startY: e.clientY,
-    startLeft: parseFloat(el.style.left),
-    startTop: parseFloat(el.style.top),
-    wrapperRect: rect
-  };
-
-  document.addEventListener('mousemove', onDrag);
-  document.addEventListener('mouseup', endDrag);
-}
-
-function onDrag(e) {
-  if (!dragState) return;
-  const { el, wrapperRect, startX, startY, startLeft, startTop } = dragState;
-
-  const dx = ((e.clientX - startX) / wrapperRect.width) * 100;
-  const dy = ((e.clientY - startY) / wrapperRect.height) * 100;
-
-  el.style.left = Math.max(0, Math.min(95, startLeft + dx)) + '%';
-  el.style.top = Math.max(0, Math.min(95, startTop + dy)) + '%';
-}
-
-function endDrag() {
-  if (!dragState) return;
-  const { el, type, index } = dragState;
-
-  if (type === 'bubble') {
-    bubbles[index].pos.left = parseFloat(el.style.left);
-    bubbles[index].pos.top = parseFloat(el.style.top);
+  // If not in selection, clear selection and select only this one
+  if (!selectedOverlays.has(el)) {
+    selectedOverlays.forEach(s => s.classList.remove('selected'));
+    selectedOverlays.clear();
+    selectedOverlays.add(el);
+    el.classList.add('selected');
   }
 
-  dragState = null;
-  document.removeEventListener('mousemove', onDrag);
-  document.removeEventListener('mouseup', endDrag);
+  // Build drag targets with initial positions
+  const targets = [];
+  selectedOverlays.forEach(sel => {
+    targets.push({
+      el: sel,
+      startLeft: parseFloat(sel.style.left),
+      startTop: parseFloat(sel.style.top),
+      startWidth: parseFloat(sel.style.width),
+      startHeight: parseFloat(sel.style.height),
+    });
+  });
+
+  dragState = { edge, startX: e.clientX, startY: e.clientY, wr, targets, moved: false };
+
+  const onMove = (ev) => {
+    const dx = ((ev.clientX - dragState.startX) / wr.width) * 100;
+    const dy = ((ev.clientY - dragState.startY) / wr.height) * 100;
+    if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) dragState.moved = true;
+
+    dragState.targets.forEach(t => {
+      if (!edge) {
+        // Move
+        t.el.style.left = Math.max(0, Math.min(98 - t.startWidth, t.startLeft + dx)) + '%';
+        t.el.style.top = Math.max(0, Math.min(98 - t.startHeight, t.startTop + dy)) + '%';
+      } else {
+        // Resize (only for the primary element, not multi-select)
+        if (t.el !== el) return;
+        let l = t.startLeft, tp = t.startTop, w = t.startWidth, h = t.startHeight;
+        if (edge.includes('e')) w = Math.max(2, t.startWidth + dx);
+        if (edge.includes('w')) { l = t.startLeft + dx; w = Math.max(2, t.startWidth - dx); }
+        if (edge.includes('s')) h = Math.max(1, t.startHeight + dy);
+        if (edge.includes('n')) { tp = t.startTop + dy; h = Math.max(1, t.startHeight - dy); }
+        t.el.style.left = l + '%'; t.el.style.top = tp + '%';
+        t.el.style.width = w + '%'; t.el.style.height = h + '%';
+      }
+    });
+  };
+
+  const onUp = () => {
+    // Sync positions back to data
+    dragState.targets.forEach(t => {
+      const idx = t.el.dataset.index;
+      if (t.el.dataset.overlayType === 'bubble' && idx !== undefined) {
+        bubbles[idx].pos = {
+          left: parseFloat(t.el.style.left), top: parseFloat(t.el.style.top),
+          width: parseFloat(t.el.style.width), height: parseFloat(t.el.style.height)
+        };
+      }
+    });
+    // Small delay to prevent click from firing after drag
+    setTimeout(() => { dragState = null; }, 50);
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  };
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
 }
 
-// Also support resize for bubbles via right-edge drag
-// (simplified: just drag for now, resize can be added later)
+// ===== MARQUEE SELECTION =====
+function setupMarquee() {
+  const wrapper = document.getElementById('comicWrapper');
+  wrapper.addEventListener('mousedown', (e) => {
+    if (!isAdminMode) return;
+    // Only if clicking on wrapper directly (not on an overlay)
+    if (e.target !== wrapper && e.target.id !== 'comicImage' && e.target.id !== 'marquee') return;
+    e.preventDefault();
+
+    const wr = wrapper.getBoundingClientRect();
+    marqueeState = {
+      startX: e.clientX, startY: e.clientY, wr,
+      startPctX: ((e.clientX - wr.left) / wr.width) * 100,
+      startPctY: ((e.clientY - wr.top) / wr.height) * 100
+    };
+
+    // Clear selection
+    selectedOverlays.forEach(s => s.classList.remove('selected'));
+    selectedOverlays.clear();
+
+    const mq = document.getElementById('marquee');
+    mq.style.display = 'block';
+    mq.style.left = marqueeState.startPctX + '%';
+    mq.style.top = marqueeState.startPctY + '%';
+    mq.style.width = '0%'; mq.style.height = '0%';
+
+    const onMove = (ev) => {
+      const curX = ((ev.clientX - wr.left) / wr.width) * 100;
+      const curY = ((ev.clientY - wr.top) / wr.height) * 100;
+      const x = Math.min(marqueeState.startPctX, curX);
+      const y = Math.min(marqueeState.startPctY, curY);
+      const w = Math.abs(curX - marqueeState.startPctX);
+      const h = Math.abs(curY - marqueeState.startPctY);
+      mq.style.left = x + '%'; mq.style.top = y + '%';
+      mq.style.width = w + '%'; mq.style.height = h + '%';
+    };
+
+    const onUp = (ev) => {
+      const mq = document.getElementById('marquee');
+      const mqL = parseFloat(mq.style.left), mqT = parseFloat(mq.style.top);
+      const mqW = parseFloat(mq.style.width), mqH = parseFloat(mq.style.height);
+      mq.style.display = 'none';
+
+      // Select all overlays that intersect with marquee
+      const allOverlays = wrapper.querySelectorAll('.bubble-overlay, .word-overlay');
+      allOverlays.forEach(ol => {
+        const oL = parseFloat(ol.style.left), oT = parseFloat(ol.style.top);
+        const oW = parseFloat(ol.style.width), oH = parseFloat(ol.style.height);
+        // Check intersection
+        if (oL + oW > mqL && oL < mqL + mqW && oT + oH > mqT && oT < mqT + mqH) {
+          selectedOverlays.add(ol);
+          ol.classList.add('selected');
+        }
+      });
+
+      marqueeState = null;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
 
 // ===== AUDIO =====
 function playAudioFile(src, label, onEnd) {
   if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
-
   const audio = new Audio(src);
   currentAudio = audio;
-
-  const indicator = document.getElementById('audioIndicator');
   document.getElementById('audioText').textContent = label;
-  indicator.classList.add('visible');
-
+  document.getElementById('audioIndicator').classList.add('visible');
   audio.onended = () => {
-    indicator.classList.remove('visible');
+    document.getElementById('audioIndicator').classList.remove('visible');
     currentAudio = null;
     document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
     if (onEnd) onEnd();
   };
-
-  audio.onerror = () => { indicator.classList.remove('visible'); currentAudio = null; };
-  audio.play().catch(() => { indicator.classList.remove('visible'); });
+  audio.onerror = () => { document.getElementById('audioIndicator').classList.remove('visible'); currentAudio = null; };
+  audio.play().catch(() => { document.getElementById('audioIndicator').classList.remove('visible'); });
 }
 
 function playWordAudio(word, el) {
   const clean = word.toLowerCase().replace(/[^a-z']/g, '');
   if (!clean) return;
-  if (el) {
-    document.querySelectorAll('.word-overlay.playing').forEach(e => e.classList.remove('playing'));
-    el.classList.add('playing');
-  }
+  if (el) { document.querySelectorAll('.word-overlay.playing').forEach(e => e.classList.remove('playing')); el.classList.add('playing'); }
   playAudioFile('audio/words/' + clean + '.mp3', word);
 }
 
-// ===== MODE SWITCHING =====
+// ===== MODES =====
 function setMode(mode) {
   currentMode = mode;
   document.body.className = 'mode-' + mode;
   if (isAdminMode) document.body.classList.add('mode-admin');
-
   document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
-
-  const msgs = {
-    bubbles: '&#x1F4AC; Click any speech bubble to hear it read aloud!',
-    words: '&#x1F524; Click any word in the bubbles to hear its pronunciation!',
-    test: '&#x1F3A4; Click a bubble in the comic for a quick test, or choose from the list below!'
-  };
+  const msgs = { bubbles: '&#x1F4AC; Click any speech bubble to hear it read aloud!', words: '&#x1F524; Click any word to hear its pronunciation!', test: '&#x1F3A4; Click a bubble for a quick test, or choose from the list below!' };
   document.getElementById('instructions').innerHTML = msgs[mode];
-
-  stopAudio();
-  stopRecording();
+  stopAudio(); stopRecording();
 }
 
 function stopAudio() {
@@ -1097,412 +708,290 @@ function stopAudio() {
   document.getElementById('audioIndicator').classList.remove('visible');
 }
 
-// ===== ADMIN MODE =====
 function toggleAdmin() {
   isAdminMode = !isAdminMode;
   document.getElementById('adminToggle').classList.toggle('active', isAdminMode);
   document.body.classList.toggle('mode-admin', isAdminMode);
+  if (!isAdminMode) { selectedOverlays.forEach(s => s.classList.remove('selected')); selectedOverlays.clear(); }
 }
 
-// ===== BUBBLE CLICK HANDLER =====
-function onBubbleClick(index) {
-  if (isAdminMode) return;
-
+// ===== BUBBLE CLICK =====
+function onBubbleClick(i) {
+  if (isAdminMode || (dragState && dragState.moved)) return;
   if (currentMode === 'bubbles') {
-    // Play bubble audio
     document.querySelectorAll('.playing').forEach(e => e.classList.remove('playing'));
-    document.getElementById('bubble' + index).classList.add('playing');
-    playAudioFile(bubbles[index].audio, bubbles[index].character + ' speaking...');
+    document.getElementById('bubble' + i).classList.add('playing');
+    playAudioFile(bubbles[i].audio, bubbles[i].character + ' speaking...');
   } else if (currentMode === 'test') {
-    // Open popup test for this bubble
-    openPopupTest(index);
+    openPopupTest(i);
   }
 }
 
-// ===== BOTTOM PANEL TEST =====
+// ===== PANEL TEST =====
 function initTestPanel() {
-  const selector = document.getElementById('testBubbleSelector');
-  bubbles.forEach((bubble, i) => {
+  const sel = document.getElementById('testBubbleSelector');
+  bubbles.forEach((b, i) => {
     const btn = document.createElement('button');
     btn.className = 'test-bubble-btn';
-    const preview = bubble.text.length > 25 ? bubble.text.substring(0, 25) + '...' : bubble.text;
-    btn.textContent = bubble.character + ': "' + preview + '"';
-    btn.onclick = () => selectPanelBubble(i, btn);
-    selector.appendChild(btn);
+    btn.textContent = b.character + ': "' + (b.text.length > 25 ? b.text.substring(0, 25) + '...' : b.text) + '"';
+    btn.onclick = () => { panelSelectedBubble = i; document.querySelectorAll('.test-bubble-btn').forEach(x => x.classList.remove('active')); btn.classList.add('active'); renderTestWords('panel', i); hideScore('panel'); setStatus('panel', 'Press the microphone and read!'); };
+    sel.appendChild(btn);
   });
 }
 
-function selectPanelBubble(index, btn) {
-  panelSelectedBubble = index;
-  document.querySelectorAll('.test-bubble-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderTestWords('panel', index);
-  document.getElementById('scoreDisplay').classList.remove('visible');
-  document.getElementById('testStatus').textContent = 'Press the microphone and read the text above!';
-}
-
-function renderTestWords(context, bubbleIndex) {
-  const prefix = context === 'popup' ? 'popup' : 'test';
-  const display = document.getElementById(prefix === 'popup' ? 'popupTextDisplay' : 'testTextDisplay');
-  const words = bubbles[bubbleIndex].text.split(/\s+/);
-  display.innerHTML = words.map(w =>
-    '<span class="word pending" onclick="playWordAudio(\'' + w.replace(/'/g, "\\'") + '\')">' + w + '</span>'
-  ).join(' ');
+function renderTestWords(ctx, bi) {
+  const id = ctx === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
+  const words = bubbles[bi].text.split(/\s+/);
+  document.getElementById(id).innerHTML = words.map(w => '<span class="word pending" onclick="playWordAudio(\'' + w.replace(/'/g, "\\'") + '\')">' + w + '</span>').join(' ');
 }
 
 // ===== POPUP TEST =====
-function openPopupTest(index) {
-  popupCurrentIndex = index;
+function openPopupTest(i) {
+  popupCurrentIndex = i;
   popupBubbleResults = {};
   renderPopup();
   document.getElementById('popupOverlay').classList.add('visible');
 }
 
-function closePopup() {
-  document.getElementById('popupOverlay').classList.remove('visible');
-  stopRecording();
-}
+function closePopup() { document.getElementById('popupOverlay').classList.remove('visible'); stopRecording(); }
 
 function renderPopup() {
-  const bubble = bubbles[popupCurrentIndex];
-
-  // Progress dots
-  const progressEl = document.getElementById('popupProgress');
-  progressEl.innerHTML = bubbles.map((_, i) => {
-    let cls = 'popup-progress-dot';
-    if (i === popupCurrentIndex) cls += ' current';
-    else if (popupBubbleResults[i] === 'passed') cls += ' done';
-    else if (popupBubbleResults[i] === 'failed') cls += ' failed';
-    return '<div class="' + cls + '"></div>';
+  const b = bubbles[popupCurrentIndex];
+  document.getElementById('popupProgress').innerHTML = bubbles.map((_, i) => {
+    let c = 'popup-progress-dot';
+    if (i === popupCurrentIndex) c += ' current';
+    else if (popupBubbleResults[i] === 'passed') c += ' done';
+    else if (popupBubbleResults[i] === 'failed') c += ' failed';
+    return '<div class="' + c + '"></div>';
   }).join('');
-
-  document.getElementById('popupCharacter').textContent = bubble.character;
+  document.getElementById('popupCharacter').textContent = b.character;
   renderTestWords('popup', popupCurrentIndex);
-
-  // Reset score
-  document.getElementById('popupScore').classList.remove('visible');
-  document.getElementById('popupStatus').textContent = 'Press the microphone to start reading';
-
-  // Nav buttons
+  hideScore('popup');
+  setStatus('popup', 'Press the microphone to start reading');
   document.getElementById('popupPrev').disabled = popupCurrentIndex === 0;
   document.getElementById('popupNext').disabled = popupCurrentIndex === bubbles.length - 1;
 }
 
 function popupNavigate(dir) {
-  const newIndex = popupCurrentIndex + dir;
-  if (newIndex < 0 || newIndex >= bubbles.length) return;
-  stopRecording();
-  popupCurrentIndex = newIndex;
-  renderPopup();
+  const n = popupCurrentIndex + dir;
+  if (n < 0 || n >= bubbles.length) return;
+  stopRecording(); popupCurrentIndex = n; renderPopup();
 }
 
-function onRunningModeChange() {
-  runningMode = document.getElementById('runningMode').checked;
-}
+// ===== RECORDING =====
+function toggleRecording(ctx) { isRecording ? stopRecording() : startRecording(ctx); }
 
-// ===== RECORDING / SPEECH RECOGNITION =====
-function toggleRecording(context) {
-  if (isRecording) {
-    stopRecording();
-  } else {
-    startRecording(context);
-  }
-}
+function startRecording(ctx) {
+  activeTestContext = ctx;
+  const bi = ctx === 'popup' ? popupCurrentIndex : panelSelectedBubble;
+  if (bi === null && ctx === 'panel') { setStatus(ctx, 'Please select a bubble first!'); return; }
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { setStatus(ctx, 'Use Chrome or Edge for speech recognition.'); return; }
 
-function startRecording(context) {
-  activeTestContext = context;
-
-  const bubbleIndex = context === 'popup' ? popupCurrentIndex : panelSelectedBubble;
-  if (bubbleIndex === null && context === 'panel') {
-    document.getElementById('testStatus').textContent = 'Please select a bubble first!';
-    return;
-  }
-
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    setStatus(context, 'Speech recognition not supported. Please use Chrome or Edge.');
-    return;
-  }
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
   recognition.lang = 'en-US';
   recognition.interimResults = true;
   recognition.continuous = true;
   recognition.maxAlternatives = 3;
 
-  const btn = context === 'popup' ? document.getElementById('popupRecordBtn') : document.getElementById('recordBtn');
-  btn.classList.add('recording');
-  btn.innerHTML = '&#x23F9;';
+  const btn = document.getElementById(ctx === 'popup' ? 'popupRecordBtn' : 'recordBtn');
+  btn.classList.add('recording'); btn.innerHTML = '&#x23F9;';
   isRecording = true;
+  setStatus(ctx, 'Listening... Read the text now!');
+  hideScore(ctx);
 
-  setStatus(context, 'Listening... Read the text now!');
-  hideScore(context);
-
-  // Reset words
-  const prefix = context === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
+  const prefix = ctx === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
   document.querySelectorAll('#' + prefix + ' .word').forEach(w => w.className = 'word pending');
 
   let finalTranscript = '';
-  const expectedBubble = bubbles[bubbleIndex];
+  const expectedCount = bubbles[bi].text.split(/\s+/).length;
 
-  recognition.onresult = (event) => {
+  recognition.onresult = (ev) => {
     let interim = '';
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' ';
-      else interim += event.results[i][0].transcript;
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) finalTranscript += ev.results[i][0].transcript + ' ';
+      else interim += ev.results[i][0].transcript;
     }
     const spoken = (finalTranscript + interim).trim();
-    updateHighlights(context, bubbleIndex, spoken);
-    setStatus(context, 'Heard: "' + spoken + '"');
+    updateHighlights(ctx, bi, spoken);
+    setStatus(ctx, 'Heard: "' + spoken + '"');
+
+    // AUTO-STOP: when spoken word count >= expected word count
+    const spokenCount = spoken.split(/\s+/).filter(w => w).length;
+    if (spokenCount >= expectedCount) {
+      // Give a tiny delay for the last word to settle
+      setTimeout(() => {
+        if (isRecording) {
+          forceStopAndEvaluate(ctx, bi, (finalTranscript + interim).trim());
+        }
+      }, 600);
+    }
   };
 
-  recognition.onerror = (event) => {
-    if (event.error !== 'no-speech' && event.error !== 'aborted') {
-      setStatus(context, 'Error: ' + event.error + '. Try again!');
-    }
+  recognition.onerror = (ev) => {
+    if (ev.error !== 'no-speech' && ev.error !== 'aborted') setStatus(ctx, 'Error: ' + ev.error);
     stopRecording();
   };
 
   recognition.onend = () => {
     if (isRecording) {
-      evaluate(context, bubbleIndex, finalTranscript.trim());
-      isRecording = false;
-      btn.classList.remove('recording');
-      btn.innerHTML = '&#x1F3A4;';
+      forceStopAndEvaluate(ctx, bi, finalTranscript.trim());
     }
   };
 
   recognition.start();
 }
 
+function forceStopAndEvaluate(ctx, bi, spoken) {
+  isRecording = false;
+  const btn = document.getElementById(ctx === 'popup' ? 'popupRecordBtn' : 'recordBtn');
+  btn.classList.remove('recording'); btn.innerHTML = '&#x1F3A4;';
+  if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
+  evaluate(ctx, bi, spoken);
+}
+
 function stopRecording() {
   isRecording = false;
   ['recordBtn', 'popupRecordBtn'].forEach(id => {
     const btn = document.getElementById(id);
-    btn.classList.remove('recording');
-    btn.innerHTML = '&#x1F3A4;';
+    btn.classList.remove('recording'); btn.innerHTML = '&#x1F3A4;';
   });
   if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
 }
 
-function setStatus(context, text) {
-  const id = context === 'popup' ? 'popupStatus' : 'testStatus';
-  document.getElementById(id).textContent = text;
-}
+function setStatus(ctx, t) { document.getElementById(ctx === 'popup' ? 'popupStatus' : 'testStatus').textContent = t; }
+function hideScore(ctx) { document.getElementById(ctx === 'popup' ? 'popupScore' : 'scoreDisplay').classList.remove('visible'); }
 
-function hideScore(context) {
-  const id = context === 'popup' ? 'popupScore' : 'scoreDisplay';
-  document.getElementById(id).classList.remove('visible');
-}
-
-function updateHighlights(context, bubbleIndex, spoken) {
-  const expected = bubbles[bubbleIndex].text.split(/\s+/).map(normalizeWord);
+function updateHighlights(ctx, bi, spoken) {
+  const exp = bubbles[bi].text.split(/\s+/).map(normalizeWord);
   const got = spoken.split(/\s+/).map(normalizeWord).filter(w => w);
-  const prefix = context === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
-  const wordEls = document.querySelectorAll('#' + prefix + ' .word');
-
-  wordEls.forEach((el, i) => {
-    if (i < got.length) {
-      el.className = (expected[i] === got[i] || levenshtein(expected[i], got[i]) <= 1) ? 'word correct' : 'word incorrect';
-    } else {
-      el.className = 'word pending';
-    }
+  const prefix = ctx === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
+  document.querySelectorAll('#' + prefix + ' .word').forEach((el, i) => {
+    if (i < got.length) el.className = (exp[i] === got[i] || levenshtein(exp[i], got[i]) <= 1) ? 'word correct' : 'word incorrect';
+    else el.className = 'word pending';
   });
 }
 
-function evaluate(context, bubbleIndex, spoken) {
-  if (!spoken) { setStatus(context, 'No speech detected. Try again!'); return; }
+function evaluate(ctx, bi, spoken) {
+  if (!spoken) { setStatus(ctx, 'No speech detected. Try again!'); return; }
 
-  const expected = bubbles[bubbleIndex].text.split(/\s+/).map(normalizeWord);
+  const exp = bubbles[bi].text.split(/\s+/).map(normalizeWord);
   const got = spoken.split(/\s+/).map(normalizeWord).filter(w => w);
-  let correct = 0;
-  const incorrectWords = [];
-
-  expected.forEach((w, i) => {
+  let correct = 0; const bad = [];
+  exp.forEach((w, i) => {
     const g = got[i] || '';
     if (w === g || levenshtein(w, g) <= 1) correct++;
-    else incorrectWords.push(bubbles[bubbleIndex].text.split(/\s+/)[i]);
+    else bad.push(bubbles[bi].text.split(/\s+/)[i]);
   });
 
-  const score = Math.round((correct / expected.length) * 100);
-  updateHighlights(context, bubbleIndex, spoken);
+  const score = Math.round((correct / exp.length) * 100);
+  updateHighlights(ctx, bi, spoken);
 
-  // Show score
-  const prefix = context === 'popup' ? 'popup' : '';
-  const scoreEl = document.getElementById(prefix ? 'popupScore' : 'scoreDisplay');
-  const numEl = document.getElementById(prefix ? 'popupScoreNumber' : 'scoreNumber');
-  const msgEl = document.getElementById(prefix ? 'popupScoreMessage' : 'scoreMessage');
-  const pracEl = document.getElementById(prefix ? 'popupPracticeWords' : 'practiceWords');
+  const pre = ctx === 'popup' ? 'popup' : '';
+  const sEl = document.getElementById(pre ? 'popupScore' : 'scoreDisplay');
+  const nEl = document.getElementById(pre ? 'popupScoreNumber' : 'scoreNumber');
+  const mEl = document.getElementById(pre ? 'popupScoreMessage' : 'scoreMessage');
+  const pEl = document.getElementById(pre ? 'popupPracticeWords' : 'practiceWords');
 
-  numEl.textContent = score + '%';
+  nEl.textContent = score + '%';
+  if (score >= 90) { nEl.className = 'score-number great'; mEl.textContent = 'Amazing wizard!'; mEl.style.color = '#50fa7b'; }
+  else if (score >= 70) { nEl.className = 'score-number good'; mEl.textContent = 'Good job! Practice the highlighted words!'; mEl.style.color = '#ffd700'; }
+  else { nEl.className = 'score-number practice'; mEl.textContent = 'Keep practicing! Click words below to hear them.'; mEl.style.color = '#ff8c42'; }
 
-  if (score >= 90) {
-    numEl.className = 'score-number great';
-    msgEl.textContent = 'Amazing wizard! You read it perfectly!';
-    msgEl.style.color = '#50fa7b';
-    popupBubbleResults[bubbleIndex] = 'passed';
-  } else if (score >= 70) {
-    numEl.className = 'score-number good';
-    msgEl.textContent = 'Good job! Practice the highlighted words and try again!';
-    msgEl.style.color = '#ffd700';
-    popupBubbleResults[bubbleIndex] = 'passed';
-  } else {
-    numEl.className = 'score-number practice';
-    msgEl.textContent = 'Keep practicing! Click the words below to hear how they sound.';
-    msgEl.style.color = '#ff8c42';
-    popupBubbleResults[bubbleIndex] = 'failed';
-  }
+  popupBubbleResults[bi] = score >= 70 ? 'passed' : 'failed';
 
-  // Practice words
-  pracEl.innerHTML = '';
-  incorrectWords.forEach(word => {
+  pEl.innerHTML = '';
+  bad.forEach(w => {
     const btn = document.createElement('button');
     btn.className = 'practice-word';
-    btn.innerHTML = '&#x1F50A; ' + word;
-    btn.onclick = () => { playWordAudio(word); btn.classList.add('played'); };
-    pracEl.appendChild(btn);
+    btn.innerHTML = '&#x1F50A; ' + w;
+    btn.onclick = () => { playWordAudio(w); btn.classList.add('played'); };
+    pEl.appendChild(btn);
   });
 
-  scoreEl.classList.add('visible');
-  setStatus(context, 'Done! ' + correct + '/' + expected.length + ' words correct.');
+  sEl.classList.add('visible');
+  setStatus(ctx, correct + '/' + exp.length + ' words correct.');
 
-  // Update popup progress dots
-  if (context === 'popup') {
+  if (ctx === 'popup') {
     renderProgressDots();
-
-    // Running mode: auto-advance if all correct
+    // Running mode auto-advance
     if (runningMode && score >= 70) {
       setTimeout(() => {
-        if (popupCurrentIndex < bubbles.length - 1) {
-          popupCurrentIndex++;
-          renderPopup();
-        } else {
-          // Completed all bubbles! Check if all passed
-          checkCompletion();
-        }
-      }, 1500);
+        if (popupCurrentIndex < bubbles.length - 1) { popupCurrentIndex++; renderPopup(); }
+        else checkCompletion();
+      }, 1200);
     }
   }
 }
 
 function renderProgressDots() {
-  const progressEl = document.getElementById('popupProgress');
-  progressEl.innerHTML = bubbles.map((_, i) => {
-    let cls = 'popup-progress-dot';
-    if (i === popupCurrentIndex) cls += ' current';
-    else if (popupBubbleResults[i] === 'passed') cls += ' done';
-    else if (popupBubbleResults[i] === 'failed') cls += ' failed';
-    return '<div class="' + cls + '"></div>';
+  document.getElementById('popupProgress').innerHTML = bubbles.map((_, i) => {
+    let c = 'popup-progress-dot';
+    if (i === popupCurrentIndex) c += ' current';
+    else if (popupBubbleResults[i] === 'passed') c += ' done';
+    else if (popupBubbleResults[i] === 'failed') c += ' failed';
+    return '<div class="' + c + '"></div>';
   }).join('');
 }
 
 function checkCompletion() {
-  // Check if we've gone through all bubbles from the starting point to the end
-  const startIndex = Math.min(...Object.keys(popupBubbleResults).map(Number));
-  let allFromStartPassed = true;
-  for (let i = startIndex; i < bubbles.length; i++) {
-    if (popupBubbleResults[i] !== 'passed') { allFromStartPassed = false; break; }
-  }
-
-  if (allFromStartPassed && Object.keys(popupBubbleResults).length >= bubbles.length - startIndex) {
-    // Celebration!
-    closePopup();
-    showTrophy();
-    launchConfetti();
-  }
+  const start = Math.min(...Object.keys(popupBubbleResults).map(Number));
+  let ok = true;
+  for (let i = start; i < bubbles.length; i++) { if (popupBubbleResults[i] !== 'passed') { ok = false; break; } }
+  if (ok) { closePopup(); showTrophy(); launchConfetti(); }
 }
 
-function retryTest(context) {
-  const bubbleIndex = context === 'popup' ? popupCurrentIndex : panelSelectedBubble;
-  if (bubbleIndex === null) return;
-  renderTestWords(context, bubbleIndex);
-  hideScore(context);
-  setStatus(context, 'Press the microphone and read the text above!');
+function retryTest(ctx) {
+  const bi = ctx === 'popup' ? popupCurrentIndex : panelSelectedBubble;
+  if (bi === null) return;
+  renderTestWords(ctx, bi); hideScore(ctx); setStatus(ctx, 'Press the microphone and read!');
 }
 
-// ===== CONFETTI & TROPHY =====
-function showTrophy() {
-  document.getElementById('trophyOverlay').classList.add('visible');
-}
-
-function dismissTrophy() {
-  document.getElementById('trophyOverlay').classList.remove('visible');
-}
+// ===== CELEBRATION =====
+function showTrophy() { document.getElementById('trophyOverlay').classList.add('visible'); }
+function dismissTrophy() { document.getElementById('trophyOverlay').classList.remove('visible'); }
 
 function launchConfetti() {
-  const canvas = document.getElementById('confettiCanvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  const pieces = [];
-  const colors = ['#ffd700', '#ff6b6b', '#50fa7b', '#8be9fd', '#ff79c6', '#bd93f9', '#ffb86c'];
-
-  for (let i = 0; i < 150; i++) {
-    pieces.push({
-      x: Math.random() * canvas.width,
-      y: -20 - Math.random() * 300,
-      w: 8 + Math.random() * 8,
-      h: 4 + Math.random() * 4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      vx: (Math.random() - 0.5) * 4,
-      vy: 2 + Math.random() * 4,
-      rotation: Math.random() * 360,
-      rotSpeed: (Math.random() - 0.5) * 10,
-      opacity: 1
-    });
-  }
-
-  let frame = 0;
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const c = document.getElementById('confettiCanvas');
+  const ctx = c.getContext('2d');
+  c.width = window.innerWidth; c.height = window.innerHeight;
+  const colors = ['#ffd700','#ff6b6b','#50fa7b','#8be9fd','#ff79c6','#bd93f9','#ffb86c'];
+  const pieces = Array.from({length: 150}, () => ({
+    x: Math.random() * c.width, y: -20 - Math.random() * 300,
+    w: 8 + Math.random() * 8, h: 4 + Math.random() * 4,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    vx: (Math.random() - 0.5) * 4, vy: 2 + Math.random() * 4,
+    rot: Math.random() * 360, rs: (Math.random() - 0.5) * 10, op: 1
+  }));
+  let f = 0;
+  (function anim() {
+    ctx.clearRect(0, 0, c.width, c.height);
     let alive = false;
-
     pieces.forEach(p => {
-      if (p.opacity <= 0) return;
-      alive = true;
-
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.05;
-      p.rotation += p.rotSpeed;
-
-      if (p.y > canvas.height) p.opacity -= 0.02;
-      if (frame > 120) p.opacity -= 0.01;
-
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, p.opacity);
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rotation * Math.PI / 180);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      if (p.op <= 0) return; alive = true;
+      p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.rot += p.rs;
+      if (p.y > c.height) p.op -= 0.02; if (f > 120) p.op -= 0.01;
+      ctx.save(); ctx.globalAlpha = Math.max(0, p.op);
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
       ctx.restore();
     });
-
-    frame++;
-    if (alive && frame < 300) requestAnimationFrame(animate);
-    else ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  animate();
+    f++;
+    if (alive && f < 300) requestAnimationFrame(anim);
+    else ctx.clearRect(0, 0, c.width, c.height);
+  })();
 }
 
-// ===== UTILITIES =====
-function normalizeWord(w) {
-  return w.toLowerCase().replace(/[^a-z']/g, '');
-}
-
+// ===== UTILS =====
+function normalizeWord(w) { return w.toLowerCase().replace(/[^a-z']/g, ''); }
 function levenshtein(a, b) {
-  if (!a.length) return b.length;
-  if (!b.length) return a.length;
+  if (!a.length) return b.length; if (!b.length) return a.length;
   const m = [];
   for (let i = 0; i <= b.length; i++) m[i] = [i];
   for (let j = 0; j <= a.length; j++) m[0][j] = j;
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
+  for (let i = 1; i <= b.length; i++)
+    for (let j = 1; j <= a.length; j++)
       m[i][j] = b[i-1] === a[j-1] ? m[i-1][j-1] : Math.min(m[i-1][j-1]+1, m[i][j-1]+1, m[i-1][j]+1);
-    }
-  }
   return m[b.length][a.length];
 }
 </script>
