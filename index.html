@@ -17,7 +17,6 @@
     overflow-x: hidden;
   }
 
-  /* Magical particles background */
   body::before {
     content: '';
     position: fixed;
@@ -33,10 +32,7 @@
     z-index: 0;
   }
 
-  @keyframes sparkle {
-    0% { opacity: 0.5; }
-    100% { opacity: 1; }
-  }
+  @keyframes sparkle { 0% { opacity: 0.5; } 100% { opacity: 1; } }
 
   .container {
     max-width: 800px;
@@ -46,11 +42,7 @@
     z-index: 1;
   }
 
-  /* Header */
-  .header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
+  .header { text-align: center; margin-bottom: 20px; }
 
   .header h1 {
     font-size: 2rem;
@@ -59,14 +51,10 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: none;
     margin-bottom: 6px;
   }
 
-  .header p {
-    color: #b8a9d4;
-    font-size: 0.95rem;
-  }
+  .header p { color: #b8a9d4; font-size: 0.95rem; }
 
   /* Mode Selector */
   .mode-selector {
@@ -109,6 +97,18 @@
 
   .mode-icon { font-size: 1.3rem; }
 
+  /* Instructions */
+  .instructions {
+    text-align: center;
+    padding: 12px;
+    background: rgba(255,215,0,0.08);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: #d4c5f0;
+    border: 1px solid rgba(255,215,0,0.15);
+  }
+
   /* Comic Container */
   .comic-wrapper {
     position: relative;
@@ -119,10 +119,7 @@
     border: 2px solid rgba(255,215,0,0.2);
   }
 
-  .comic-wrapper img {
-    width: 100%;
-    display: block;
-  }
+  .comic-wrapper img { width: 100%; display: block; }
 
   /* Bubble Overlays */
   .bubble-overlay {
@@ -149,7 +146,7 @@
     50% { box-shadow: 0 0 35px rgba(255,215,0,0.6); }
   }
 
-  /* Word Mode - clickable word regions inside bubbles */
+  /* Word overlays */
   .word-overlay {
     position: absolute;
     cursor: pointer;
@@ -172,7 +169,118 @@
   body.mode-words .word-overlay { display: block; }
   body.mode-words .bubble-overlay { pointer-events: none; }
 
-  /* Reading Test Panel */
+  /* Admin Mode */
+  .admin-toggle {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(30,20,60,0.9);
+    color: #aaa;
+    font-size: 1.3rem;
+    cursor: pointer;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+
+  .admin-toggle:hover { border-color: #ffd700; color: #ffd700; }
+  .admin-toggle.active { border-color: #ff4444; color: #ff4444; background: rgba(255,0,0,0.15); }
+
+  body.mode-admin .bubble-overlay {
+    background: rgba(255,215,0,0.2);
+    border: 2px dashed rgba(255,215,0,0.6);
+    cursor: move;
+  }
+
+  body.mode-admin .word-overlay {
+    display: block;
+    background: rgba(100,200,255,0.15);
+    border: 1px dashed rgba(100,200,255,0.5);
+    cursor: move;
+  }
+
+  .admin-label {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: rgba(0,0,0,0.85);
+    color: #ffd700;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    display: none;
+    font-family: 'Comic Neue', cursive;
+    font-weight: 700;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 20;
+  }
+
+  body.mode-admin .admin-label { display: block; }
+
+  .word-admin-label {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,50,0.9);
+    color: #8cf;
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+    display: none;
+    font-family: 'Comic Neue', cursive;
+    font-weight: 700;
+    z-index: 20;
+  }
+
+  body.mode-admin .word-admin-label { display: block; }
+
+  .admin-bar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255,0,0,0.15);
+    border-bottom: 2px solid #ff4444;
+    padding: 8px 20px;
+    z-index: 200;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #ff8888;
+    backdrop-filter: blur(10px);
+  }
+
+  body.mode-admin .admin-bar { display: flex; align-items: center; justify-content: center; gap: 15px; }
+
+  .admin-bar button {
+    padding: 5px 14px;
+    border: 1px solid #ff6666;
+    border-radius: 6px;
+    background: rgba(255,0,0,0.2);
+    color: #ffaaaa;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .admin-bar button:hover { background: rgba(255,0,0,0.35); }
+  .admin-bar button.save-btn { border-color: #50fa7b; color: #50fa7b; background: rgba(0,200,0,0.15); }
+  .admin-bar button.save-btn:hover { background: rgba(0,200,0,0.3); }
+
+  /* Reading Test Bottom Panel */
   .test-panel {
     display: none;
     margin-top: 20px;
@@ -185,11 +293,7 @@
 
   body.mode-test .test-panel { display: block; }
 
-  .test-panel h3 {
-    font-size: 1.3rem;
-    color: #ffd700;
-    margin-bottom: 15px;
-  }
+  .test-panel h3 { font-size: 1.3rem; color: #ffd700; margin-bottom: 15px; }
 
   .test-bubble-selector {
     display: flex;
@@ -239,45 +343,28 @@
     cursor: pointer;
   }
 
-  .test-text-display .word:hover {
-    background: rgba(255,255,255,0.1);
-  }
-
-  .test-text-display .word.correct {
-    color: #50fa7b;
-    background: rgba(80,250,123,0.15);
-  }
-
-  .test-text-display .word.incorrect {
-    color: #ff6b6b;
-    background: rgba(255,107,107,0.15);
-    text-decoration: underline wavy #ff6b6b;
-  }
-
-  .test-text-display .word.pending {
-    color: rgba(255,255,255,0.4);
-  }
+  .test-text-display .word:hover { background: rgba(255,255,255,0.1); }
+  .test-text-display .word.correct { color: #50fa7b; background: rgba(80,250,123,0.15); }
+  .test-text-display .word.incorrect { color: #ff6b6b; background: rgba(255,107,107,0.15); text-decoration: underline wavy #ff6b6b; }
+  .test-text-display .word.pending { color: rgba(255,255,255,0.4); }
 
   .record-btn {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     border: 3px solid #ffd700;
     background: rgba(255,215,0,0.1);
     color: #ffd700;
-    font-size: 2rem;
+    font-size: 1.8rem;
     cursor: pointer;
     transition: all 0.3s;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
   }
 
-  .record-btn:hover {
-    background: rgba(255,215,0,0.2);
-    transform: scale(1.05);
-  }
+  .record-btn:hover { background: rgba(255,215,0,0.2); transform: scale(1.05); }
 
   .record-btn.recording {
     border-color: #ff4444;
@@ -291,57 +378,25 @@
     50% { box-shadow: 0 0 0 15px rgba(255,68,68,0); }
   }
 
-  .test-status {
-    font-size: 0.95rem;
-    color: #b8a9d4;
-    margin-top: 10px;
-    min-height: 24px;
-  }
+  .test-status { font-size: 0.9rem; color: #b8a9d4; margin-top: 8px; min-height: 22px; }
 
   .score-display {
     display: none;
-    margin-top: 20px;
-    padding: 20px;
+    margin-top: 16px;
+    padding: 16px;
     background: rgba(255,255,255,0.05);
     border-radius: 12px;
   }
 
   .score-display.visible { display: block; }
-
-  .score-number {
-    font-size: 3rem;
-    font-weight: 700;
-  }
-
+  .score-number { font-size: 2.5rem; font-weight: 700; }
   .score-number.great { color: #50fa7b; }
   .score-number.good { color: #ffd700; }
   .score-number.practice { color: #ff8c42; }
-
-  .score-message {
-    font-size: 1.1rem;
-    margin-top: 8px;
-  }
-
-  .retry-btn {
-    margin-top: 15px;
-    padding: 10px 24px;
-    border: 2px solid #ffd700;
-    border-radius: 50px;
-    background: rgba(255,215,0,0.1);
-    color: #ffd700;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .retry-btn:hover {
-    background: rgba(255,215,0,0.2);
-    transform: scale(1.05);
-  }
+  .score-message { font-size: 1rem; margin-top: 6px; }
 
   .practice-words {
-    margin-top: 15px;
+    margin-top: 12px;
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -349,28 +404,227 @@
   }
 
   .practice-word {
-    padding: 8px 16px;
+    padding: 6px 14px;
     background: rgba(255,107,107,0.15);
     border: 1px solid rgba(255,107,107,0.3);
     border-radius: 20px;
     color: #ff8c8c;
     font-family: 'Comic Neue', cursive;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
   }
 
-  .practice-word:hover {
-    background: rgba(255,107,107,0.3);
-    transform: scale(1.08);
-    box-shadow: 0 0 10px rgba(255,107,107,0.3);
+  .practice-word:hover { background: rgba(255,107,107,0.3); transform: scale(1.08); }
+  .practice-word.played { border-color: rgba(100,255,150,0.4); color: #8fc; background: rgba(100,255,150,0.1); }
+
+  .retry-btn {
+    margin-top: 12px;
+    padding: 8px 20px;
+    border: 2px solid #ffd700;
+    border-radius: 50px;
+    background: rgba(255,215,0,0.1);
+    color: #ffd700;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
   }
 
-  .practice-word.played {
-    border-color: rgba(100,255,150,0.4);
-    color: #8fc;
-    background: rgba(100,255,150,0.1);
+  .retry-btn:hover { background: rgba(255,215,0,0.2); }
+
+  /* ===== POPUP TEST MODAL ===== */
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+  }
+
+  .popup-overlay.visible { display: flex; }
+
+  .popup-modal {
+    background: linear-gradient(135deg, #1e1450 0%, #2a1a6a 100%);
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 550px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.3rem;
+    cursor: pointer;
+  }
+
+  .popup-close:hover { color: #fff; }
+
+  .popup-character {
+    font-size: 0.85rem;
+    color: #b8a9d4;
+    margin-bottom: 6px;
+  }
+
+  .popup-nav {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .popup-nav button {
+    padding: 8px 18px;
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 50px;
+    background: rgba(255,215,0,0.08);
+    color: #ffd700;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .popup-nav button:hover { background: rgba(255,215,0,0.2); transform: scale(1.05); }
+  .popup-nav button:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+  .popup-progress {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+
+  .popup-progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: all 0.3s;
+  }
+
+  .popup-progress-dot.current { background: #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
+  .popup-progress-dot.done { background: #50fa7b; }
+  .popup-progress-dot.failed { background: #ff8c42; }
+
+  .running-toggle {
+    margin-top: 12px;
+  }
+
+  .running-toggle label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #b8a9d4;
+    cursor: pointer;
+  }
+
+  .running-toggle input[type="checkbox"] {
+    accent-color: #ffd700;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Confetti Canvas */
+  #confettiCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 500;
+  }
+
+  /* Trophy overlay */
+  .trophy-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 400;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+  }
+
+  .trophy-overlay.visible { display: flex; }
+
+  .trophy-card {
+    text-align: center;
+    animation: trophy-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes trophy-in {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .trophy-emoji { font-size: 6rem; }
+  .trophy-title { font-size: 2rem; color: #ffd700; margin-top: 10px; font-weight: 700; }
+  .trophy-sub { font-size: 1.1rem; color: #d4c5f0; margin-top: 8px; }
+
+  .trophy-dismiss {
+    margin-top: 20px;
+    padding: 10px 30px;
+    border: 2px solid #ffd700;
+    border-radius: 50px;
+    background: rgba(255,215,0,0.15);
+    color: #ffd700;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  /* Audio indicator */
+  .audio-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(30,20,60,0.95);
+    border: 2px solid #ffd700;
+    border-radius: 50px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+    z-index: 50;
+  }
+
+  .audio-indicator.visible { opacity: 1; transform: translateY(0); }
+
+  .audio-bars { display: flex; gap: 3px; align-items: center; height: 20px; }
+
+  .audio-bar {
+    width: 3px;
+    background: #ffd700;
+    border-radius: 2px;
+    animation: audio-bounce 0.6s ease-in-out infinite;
+  }
+
+  .audio-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+  .audio-bar:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+  .audio-bar:nth-child(3) { height: 20px; animation-delay: 0.2s; }
+  .audio-bar:nth-child(4) { height: 14px; animation-delay: 0.3s; }
+  .audio-bar:nth-child(5) { height: 8px; animation-delay: 0.4s; }
+
+  @keyframes audio-bounce {
+    0%, 100% { transform: scaleY(0.5); }
+    50% { transform: scaleY(1); }
   }
 
   /* Tooltip */
@@ -393,79 +647,25 @@
 
   .tooltip.visible { opacity: 1; }
 
-  /* Instructions */
-  .instructions {
-    text-align: center;
-    padding: 12px;
-    background: rgba(255,215,0,0.08);
-    border-radius: 10px;
-    margin-bottom: 16px;
-    font-size: 0.9rem;
-    color: #d4c5f0;
-    border: 1px solid rgba(255,215,0,0.15);
-  }
-
-  .instructions .emoji { font-size: 1.1rem; }
-
-  /* Audio indicator */
-  .audio-indicator {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(30,20,60,0.95);
-    border: 2px solid #ffd700;
-    border-radius: 50px;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.3s;
-    z-index: 50;
-  }
-
-  .audio-indicator.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .audio-bars {
-    display: flex;
-    gap: 3px;
-    align-items: center;
-    height: 20px;
-  }
-
-  .audio-bar {
-    width: 3px;
-    background: #ffd700;
-    border-radius: 2px;
-    animation: audio-bounce 0.6s ease-in-out infinite;
-  }
-
-  .audio-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
-  .audio-bar:nth-child(2) { height: 14px; animation-delay: 0.1s; }
-  .audio-bar:nth-child(3) { height: 20px; animation-delay: 0.2s; }
-  .audio-bar:nth-child(4) { height: 14px; animation-delay: 0.3s; }
-  .audio-bar:nth-child(5) { height: 8px; animation-delay: 0.4s; }
-
-  @keyframes audio-bounce {
-    0%, 100% { transform: scaleY(0.5); }
-    50% { transform: scaleY(1); }
-  }
-
   /* Responsive */
   @media (max-width: 600px) {
     .container { padding: 12px; }
     .header h1 { font-size: 1.5rem; }
     .mode-btn { padding: 8px 14px; font-size: 0.85rem; }
     .test-text-display { font-size: 1.2rem; padding: 15px; }
-    .record-btn { width: 65px; height: 65px; font-size: 1.6rem; }
+    .popup-modal { padding: 20px; }
   }
 </style>
 </head>
 <body class="mode-bubbles">
+
+<!-- Admin bar -->
+<div class="admin-bar">
+  <span>Admin Mode - Drag bubbles &amp; words to position them</span>
+  <button class="save-btn" onclick="savePositions()">Save Positions</button>
+  <button onclick="resetPositions()">Reset to Default</button>
+  <button onclick="toggleAdmin()">Exit Admin</button>
+</div>
 
 <div class="container">
   <div class="header">
@@ -490,43 +690,14 @@
   </div>
 
   <div class="comic-wrapper" id="comicWrapper">
-    <img src="comic-page.png" alt="The Secret - Comic Page" id="comicImage" onload="initOverlays()">
-
-    <!-- Bubble 1: Mila - top left panel -->
-    <div class="bubble-overlay" id="bubble0"
-         style="left:17%; top:3.5%; width:30%; height:8.5%;"
-         onclick="playBubble(0)"></div>
-
-    <!-- Bubble 2: Mom - top left panel -->
-    <div class="bubble-overlay" id="bubble1"
-         style="left:1.5%; top:19%; width:33%; height:10%;"
-         onclick="playBubble(1)"></div>
-
-    <!-- Bubble 3: Mom spirit - top right panel -->
-    <div class="bubble-overlay" id="bubble2"
-         style="left:72%; top:4.5%; width:22%; height:6%;"
-         onclick="playBubble(2)"></div>
-
-    <!-- Bubble 4: Mila - top right panel -->
-    <div class="bubble-overlay" id="bubble3"
-         style="left:59%; top:13%; width:18%; height:5%;"
-         onclick="playBubble(3)"></div>
-
-    <!-- Bubble 5: Grimshaw - middle panel -->
-    <div class="bubble-overlay" id="bubble4"
-         style="left:22%; top:34.5%; width:55%; height:8%;"
-         onclick="playBubble(4)"></div>
-
-    <!-- Bubble 6: Grimshaw - bottom left -->
-    <div class="bubble-overlay" id="bubble5"
-         style="left:1%; top:58%; width:17%; height:7%;"
-         onclick="playBubble(5)"></div>
+    <img src="comic-page.png" alt="The Secret - Comic Page" id="comicImage" onload="initApp()">
+    <!-- Bubble overlays are created dynamically by JS -->
   </div>
 
-  <!-- Reading Test Panel -->
+  <!-- Bottom Reading Test Panel -->
   <div class="test-panel" id="testPanel">
     <h3>&#x1F3A4; Reading Test</h3>
-    <p style="color:#b8a9d4; margin-bottom:15px; font-size:0.9rem;">Choose a speech bubble, then read it out loud!</p>
+    <p style="color:#b8a9d4; margin-bottom:15px; font-size:0.9rem;">Choose a speech bubble from the comic or the list below, then read it out loud!</p>
 
     <div class="test-bubble-selector" id="testBubbleSelector"></div>
 
@@ -534,31 +705,74 @@
       &#x2B06; Select a bubble above to start
     </div>
 
-    <button class="record-btn" id="recordBtn" onclick="toggleRecording()">
-      &#x1F3A4;
-    </button>
+    <button class="record-btn" id="recordBtn" onclick="toggleRecording('panel')">&#x1F3A4;</button>
 
-    <div class="test-status" id="testStatus">
-      Press the microphone to start recording
-    </div>
+    <div class="test-status" id="testStatus">Press the microphone to start recording</div>
 
     <div class="score-display" id="scoreDisplay">
       <div class="score-number" id="scoreNumber"></div>
       <div class="score-message" id="scoreMessage"></div>
       <div class="practice-words" id="practiceWords"></div>
-      <button class="retry-btn" onclick="retryTest()">&#x1F504; Try Again</button>
+      <button class="retry-btn" onclick="retryTest('panel')">&#x1F504; Try Again</button>
     </div>
   </div>
 </div>
 
+<!-- Admin toggle button -->
+<button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()" title="Admin: Position overlays">&#x2699;</button>
+
+<!-- Popup Test Modal -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-modal">
+    <button class="popup-close" onclick="closePopup()">&#x2715;</button>
+
+    <div class="popup-progress" id="popupProgress"></div>
+    <div class="popup-character" id="popupCharacter"></div>
+
+    <div class="test-text-display" id="popupTextDisplay" style="font-size:1.4rem;"></div>
+
+    <button class="record-btn" id="popupRecordBtn" onclick="toggleRecording('popup')">&#x1F3A4;</button>
+
+    <div class="test-status" id="popupStatus">Press the microphone to start reading</div>
+
+    <div class="score-display" id="popupScore">
+      <div class="score-number" id="popupScoreNumber"></div>
+      <div class="score-message" id="popupScoreMessage"></div>
+      <div class="practice-words" id="popupPracticeWords"></div>
+      <button class="retry-btn" onclick="retryTest('popup')">&#x1F504; Try Again</button>
+    </div>
+
+    <div class="running-toggle">
+      <label>
+        <input type="checkbox" id="runningMode" onchange="onRunningModeChange()">
+        Auto-advance to next bubble when correct
+      </label>
+    </div>
+
+    <div class="popup-nav">
+      <button id="popupPrev" onclick="popupNavigate(-1)">&#x2B05; Previous</button>
+      <button id="popupNext" onclick="popupNavigate(1)">Next &#x27A1;</button>
+    </div>
+  </div>
+</div>
+
+<!-- Trophy Overlay -->
+<div class="trophy-overlay" id="trophyOverlay">
+  <div class="trophy-card">
+    <div class="trophy-emoji">&#x1F3C6;&#x2728;</div>
+    <div class="trophy-title">Amazing Wizard!</div>
+    <div class="trophy-sub">You read the entire comic! You're a reading champion!</div>
+    <button class="trophy-dismiss" onclick="dismissTrophy()">&#x1F31F; Awesome!</button>
+  </div>
+</div>
+
+<!-- Confetti Canvas -->
+<canvas id="confettiCanvas"></canvas>
+
 <!-- Audio indicator -->
 <div class="audio-indicator" id="audioIndicator">
   <div class="audio-bars">
-    <div class="audio-bar"></div>
-    <div class="audio-bar"></div>
-    <div class="audio-bar"></div>
-    <div class="audio-bar"></div>
-    <div class="audio-bar"></div>
+    <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
   </div>
   <span id="audioText" style="color:#ffd700; font-size:0.85rem;"></span>
 </div>
@@ -569,59 +783,272 @@
 <script>
 // ===== BUBBLE DATA =====
 const bubbles = [
-  {
-    character: 'Mila',
-    text: "Mom, I can't go. I'm not a real wizard.",
-    audio: 'audio/bubble1_mila.mp3'
-  },
-  {
-    character: 'Mom',
-    text: "You can be a wizard, Mila. You will need to work hard.",
-    audio: 'audio/bubble2_mom.mp3'
-  },
-  {
-    character: 'Mom',
-    text: "you will be good!",
-    audio: 'audio/bubble3_mom.mp3'
-  },
-  {
-    character: 'Mila',
-    text: "I hope so",
-    audio: 'audio/bubble4_mila.mp3'
-  },
-  {
-    character: 'Professor Grimshaw',
-    text: "Hello kids! Here, you will learn big magic. Soon, you will have a test. The best spell will win.",
-    audio: 'audio/bubble5_grimshaw.mp3'
-  },
-  {
-    character: 'Professor Grimshaw',
-    text: "Now, go to sleep.",
-    audio: 'audio/bubble6_grimshaw.mp3'
-  },
+  { character: 'Mila', text: "Mom, I can't go. I'm not a real wizard.", audio: 'audio/bubble1_mila.mp3',
+    defaultPos: { left: 17, top: 3.5, width: 30, height: 8.5 }},
+  { character: 'Mom', text: "You can be a wizard, Mila. You will need to work hard.", audio: 'audio/bubble2_mom.mp3',
+    defaultPos: { left: 1.5, top: 19, width: 33, height: 10 }},
+  { character: 'Mom', text: "you will be good!", audio: 'audio/bubble3_mom.mp3',
+    defaultPos: { left: 72, top: 4.5, width: 22, height: 6 }},
+  { character: 'Mila', text: "I hope so", audio: 'audio/bubble4_mila.mp3',
+    defaultPos: { left: 59, top: 13, width: 18, height: 5 }},
+  { character: 'Professor Grimshaw', text: "Hello kids! Here, you will learn big magic. Soon, you will have a test. The best spell will win.", audio: 'audio/bubble5_grimshaw.mp3',
+    defaultPos: { left: 22, top: 34.5, width: 55, height: 8 }},
+  { character: 'Professor Grimshaw', text: "Now, go to sleep.", audio: 'audio/bubble6_grimshaw.mp3',
+    defaultPos: { left: 1, top: 58, width: 17, height: 7 }},
 ];
 
+// State
 let currentMode = 'bubbles';
 let currentAudio = null;
+let isAdminMode = false;
 let isRecording = false;
 let recognition = null;
-let selectedTestBubble = null;
+let activeTestContext = null; // 'panel' or 'popup'
+let panelSelectedBubble = null;
+let popupCurrentIndex = 0;
+let popupBubbleResults = {}; // index -> 'passed' | 'failed'
+let runningMode = false;
+let dragState = null;
 
-// ===== AUDIO PLAYBACK =====
-function playAudioFile(src, label, onEnd) {
-  // Stop any currently playing audio
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    currentAudio = null;
+// ===== INITIALIZATION =====
+function initApp() {
+  loadPositions();
+  createBubbleOverlays();
+  createWordOverlays();
+  initTestPanel();
+}
+
+function loadPositions() {
+  const saved = localStorage.getItem('comic-positions');
+  if (saved) {
+    try {
+      const positions = JSON.parse(saved);
+      // Apply saved positions to bubbles
+      if (positions.bubbles) {
+        positions.bubbles.forEach((pos, i) => {
+          if (bubbles[i]) bubbles[i].pos = pos;
+        });
+      }
+      if (positions.words) {
+        bubbles.forEach((b, i) => {
+          if (positions.words[i]) b.wordPositions = positions.words[i];
+        });
+      }
+    } catch(e) {}
   }
+  // Default positions for any not loaded
+  bubbles.forEach(b => {
+    if (!b.pos) b.pos = { ...b.defaultPos };
+  });
+}
+
+function savePositions() {
+  const data = {
+    bubbles: bubbles.map(b => ({ ...b.pos })),
+    words: {}
+  };
+  // Save word positions
+  bubbles.forEach((b, bi) => {
+    const wordEls = document.querySelectorAll(`.word-overlay[data-bubble="${bi}"]`);
+    if (wordEls.length) {
+      data.words[bi] = [];
+      wordEls.forEach(el => {
+        data.words[bi].push({
+          left: parseFloat(el.style.left),
+          top: parseFloat(el.style.top),
+          width: parseFloat(el.style.width),
+          height: parseFloat(el.style.height)
+        });
+      });
+    }
+  });
+  localStorage.setItem('comic-positions', JSON.stringify(data));
+  alert('Positions saved!');
+}
+
+function resetPositions() {
+  localStorage.removeItem('comic-positions');
+  bubbles.forEach(b => {
+    b.pos = { ...b.defaultPos };
+    delete b.wordPositions;
+  });
+  // Recreate overlays
+  document.querySelectorAll('.bubble-overlay, .word-overlay').forEach(el => el.remove());
+  createBubbleOverlays();
+  createWordOverlays();
+}
+
+// ===== BUBBLE OVERLAYS =====
+function createBubbleOverlays() {
+  const wrapper = document.getElementById('comicWrapper');
+  bubbles.forEach((bubble, i) => {
+    const div = document.createElement('div');
+    div.className = 'bubble-overlay';
+    div.id = 'bubble' + i;
+    div.dataset.index = i;
+    applyPosition(div, bubble.pos);
+
+    // Admin label
+    const label = document.createElement('div');
+    label.className = 'admin-label';
+    label.textContent = bubble.character + ': ' + bubble.text.substring(0, 40) + (bubble.text.length > 40 ? '...' : '');
+    div.appendChild(label);
+
+    div.addEventListener('click', () => onBubbleClick(i));
+    div.addEventListener('mousedown', (e) => startDrag(e, div, 'bubble', i));
+
+    wrapper.appendChild(div);
+  });
+}
+
+function applyPosition(el, pos) {
+  el.style.left = pos.left + '%';
+  el.style.top = pos.top + '%';
+  el.style.width = pos.width + '%';
+  el.style.height = pos.height + '%';
+}
+
+// ===== WORD OVERLAYS =====
+function createWordOverlays() {
+  const wrapper = document.getElementById('comicWrapper');
+
+  bubbles.forEach((bubble, bi) => {
+    const words = bubble.text.replace(/[.,!?'"]/g, '').split(/\s+/);
+    const pos = bubble.pos;
+
+    // Check for saved word positions
+    const savedWordPos = bubble.wordPositions;
+
+    const maxWordsPerRow = Math.max(3, Math.floor(pos.width / 7));
+    const rows = [];
+    let row = [];
+    words.forEach(w => { row.push(w); if (row.length >= maxWordsPerRow) { rows.push([...row]); row = []; } });
+    if (row.length) rows.push(row);
+
+    const rowH = pos.height / (rows.length + 0.5);
+    const pad = 1.5;
+    let wordIndex = 0;
+
+    rows.forEach((r, ri) => {
+      const totalChars = r.reduce((s, w) => s + w.length, 0);
+      const availW = pos.width - pad * 2;
+      let x = pos.left + pad;
+
+      r.forEach(word => {
+        const w = (word.length / totalChars) * availW * 0.85;
+
+        const div = document.createElement('div');
+        div.className = 'word-overlay';
+        div.dataset.word = word;
+        div.dataset.bubble = bi;
+        div.dataset.wordIndex = wordIndex;
+
+        // Use saved position or calculated default
+        if (savedWordPos && savedWordPos[wordIndex]) {
+          applyPosition(div, savedWordPos[wordIndex]);
+        } else {
+          div.style.left = x + '%';
+          div.style.top = (pos.top + pad * 0.5 + ri * rowH) + '%';
+          div.style.width = w + '%';
+          div.style.height = rowH + '%';
+        }
+
+        // Word label for admin mode
+        const wLabel = document.createElement('div');
+        wLabel.className = 'word-admin-label';
+        wLabel.textContent = word;
+        div.appendChild(wLabel);
+
+        div.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (currentMode === 'words' && !isAdminMode) playWordAudio(word, div);
+        });
+
+        div.addEventListener('mouseenter', (e) => {
+          if (currentMode === 'words' && !isAdminMode) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.innerHTML = '&#x1F50A; ' + word;
+            tooltip.style.left = e.clientX + 12 + 'px';
+            tooltip.style.top = e.clientY - 40 + 'px';
+            tooltip.classList.add('visible');
+          }
+        });
+
+        div.addEventListener('mouseleave', () => {
+          document.getElementById('tooltip').classList.remove('visible');
+        });
+
+        div.addEventListener('mousedown', (e) => startDrag(e, div, 'word', wordIndex));
+
+        wrapper.appendChild(div);
+        x += w + (availW * 0.15 / r.length);
+        wordIndex++;
+      });
+    });
+  });
+}
+
+// ===== DRAG & DROP (Admin Mode) =====
+function startDrag(e, el, type, index) {
+  if (!isAdminMode) return;
+  e.preventDefault();
+  e.stopPropagation();
+
+  const wrapper = document.getElementById('comicWrapper');
+  const rect = wrapper.getBoundingClientRect();
+
+  dragState = {
+    el,
+    type,
+    index,
+    startX: e.clientX,
+    startY: e.clientY,
+    startLeft: parseFloat(el.style.left),
+    startTop: parseFloat(el.style.top),
+    wrapperRect: rect
+  };
+
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', endDrag);
+}
+
+function onDrag(e) {
+  if (!dragState) return;
+  const { el, wrapperRect, startX, startY, startLeft, startTop } = dragState;
+
+  const dx = ((e.clientX - startX) / wrapperRect.width) * 100;
+  const dy = ((e.clientY - startY) / wrapperRect.height) * 100;
+
+  el.style.left = Math.max(0, Math.min(95, startLeft + dx)) + '%';
+  el.style.top = Math.max(0, Math.min(95, startTop + dy)) + '%';
+}
+
+function endDrag() {
+  if (!dragState) return;
+  const { el, type, index } = dragState;
+
+  if (type === 'bubble') {
+    bubbles[index].pos.left = parseFloat(el.style.left);
+    bubbles[index].pos.top = parseFloat(el.style.top);
+  }
+
+  dragState = null;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', endDrag);
+}
+
+// Also support resize for bubbles via right-edge drag
+// (simplified: just drag for now, resize can be added later)
+
+// ===== AUDIO =====
+function playAudioFile(src, label, onEnd) {
+  if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
 
   const audio = new Audio(src);
   currentAudio = audio;
 
   const indicator = document.getElementById('audioIndicator');
-  const audioText = document.getElementById('audioText');
-  audioText.textContent = label;
+  document.getElementById('audioText').textContent = label;
   indicator.classList.add('visible');
 
   audio.onended = () => {
@@ -631,141 +1058,68 @@ function playAudioFile(src, label, onEnd) {
     if (onEnd) onEnd();
   };
 
-  audio.onerror = () => {
-    indicator.classList.remove('visible');
-    currentAudio = null;
-    document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
-  };
-
-  audio.play().catch(() => {
-    // If autoplay blocked, show a message
-    indicator.classList.remove('visible');
-  });
+  audio.onerror = () => { indicator.classList.remove('visible'); currentAudio = null; };
+  audio.play().catch(() => { indicator.classList.remove('visible'); });
 }
 
-function playWordAudio(word) {
-  const cleanWord = word.toLowerCase().replace(/[^a-z']/g, '');
-  if (!cleanWord) return;
-  const src = 'audio/words/' + cleanWord + '.mp3';
-  playAudioFile(src, word);
+function playWordAudio(word, el) {
+  const clean = word.toLowerCase().replace(/[^a-z']/g, '');
+  if (!clean) return;
+  if (el) {
+    document.querySelectorAll('.word-overlay.playing').forEach(e => e.classList.remove('playing'));
+    el.classList.add('playing');
+  }
+  playAudioFile('audio/words/' + clean + '.mp3', word);
 }
 
 // ===== MODE SWITCHING =====
 function setMode(mode) {
   currentMode = mode;
   document.body.className = 'mode-' + mode;
+  if (isAdminMode) document.body.classList.add('mode-admin');
 
-  document.querySelectorAll('.mode-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.mode === mode);
-  });
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
 
-  const instructions = document.getElementById('instructions');
   const msgs = {
     bubbles: '&#x1F4AC; Click any speech bubble to hear it read aloud!',
     words: '&#x1F524; Click any word in the bubbles to hear its pronunciation!',
-    test: '&#x1F3A4; Choose a bubble below, then read it aloud into your microphone!'
+    test: '&#x1F3A4; Click a bubble in the comic for a quick test, or choose from the list below!'
   };
-  instructions.innerHTML = msgs[mode];
+  document.getElementById('instructions').innerHTML = msgs[mode];
 
-  // Stop current audio
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio = null;
-  }
-  document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
-  document.getElementById('audioIndicator').classList.remove('visible');
+  stopAudio();
   stopRecording();
 }
 
-// ===== BUBBLE MODE =====
-function playBubble(index) {
-  if (currentMode !== 'bubbles') return;
-
-  const bubble = bubbles[index];
-  const el = document.getElementById('bubble' + index);
-
-  document.querySelectorAll('.playing').forEach(e => e.classList.remove('playing'));
-  el.classList.add('playing');
-
-  playAudioFile(bubble.audio, bubble.character + ' speaking...');
+function stopAudio() {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
+  document.getElementById('audioIndicator').classList.remove('visible');
 }
 
-// ===== WORD MODE =====
-function initOverlays() {
-  const wrapper = document.getElementById('comicWrapper');
-
-  bubbles.forEach((bubble, bi) => {
-    const bubbleEl = document.getElementById('bubble' + bi);
-    const words = bubble.text.replace(/[.,!?'"]/g, '').split(/\s+/);
-
-    const rect = {
-      left: parseFloat(bubbleEl.style.left),
-      top: parseFloat(bubbleEl.style.top),
-      width: parseFloat(bubbleEl.style.width),
-      height: parseFloat(bubbleEl.style.height),
-    };
-
-    // Layout words in rows within the bubble area
-    const maxWordsPerRow = Math.max(3, Math.floor(rect.width / 7));
-    const rows = [];
-    let row = [];
-    words.forEach(word => {
-      row.push(word);
-      if (row.length >= maxWordsPerRow) {
-        rows.push([...row]);
-        row = [];
-      }
-    });
-    if (row.length) rows.push(row);
-
-    const rowH = rect.height / (rows.length + 0.5);
-    const pad = 1.5;
-
-    rows.forEach((r, ri) => {
-      const totalChars = r.reduce((s, w) => s + w.length, 0);
-      const availW = rect.width - pad * 2;
-      let x = rect.left + pad;
-
-      r.forEach(word => {
-        const w = (word.length / totalChars) * availW * 0.85;
-        const div = document.createElement('div');
-        div.className = 'word-overlay';
-        div.dataset.word = word;
-        div.title = word;
-        div.style.left = x + '%';
-        div.style.top = (rect.top + pad * 0.5 + ri * rowH) + '%';
-        div.style.width = w + '%';
-        div.style.height = rowH + '%';
-
-        div.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (currentMode !== 'words') return;
-          document.querySelectorAll('.word-overlay.playing').forEach(e => e.classList.remove('playing'));
-          div.classList.add('playing');
-          playWordAudio(word);
-        });
-
-        div.addEventListener('mouseenter', (e) => {
-          if (currentMode !== 'words') return;
-          const tooltip = document.getElementById('tooltip');
-          tooltip.innerHTML = '&#x1F50A; ' + word;
-          tooltip.style.left = e.clientX + 12 + 'px';
-          tooltip.style.top = e.clientY - 40 + 'px';
-          tooltip.classList.add('visible');
-        });
-
-        div.addEventListener('mouseleave', () => {
-          document.getElementById('tooltip').classList.remove('visible');
-        });
-
-        wrapper.appendChild(div);
-        x += w + (availW * 0.15 / r.length);
-      });
-    });
-  });
+// ===== ADMIN MODE =====
+function toggleAdmin() {
+  isAdminMode = !isAdminMode;
+  document.getElementById('adminToggle').classList.toggle('active', isAdminMode);
+  document.body.classList.toggle('mode-admin', isAdminMode);
 }
 
-// ===== READING TEST =====
+// ===== BUBBLE CLICK HANDLER =====
+function onBubbleClick(index) {
+  if (isAdminMode) return;
+
+  if (currentMode === 'bubbles') {
+    // Play bubble audio
+    document.querySelectorAll('.playing').forEach(e => e.classList.remove('playing'));
+    document.getElementById('bubble' + index).classList.add('playing');
+    playAudioFile(bubbles[index].audio, bubbles[index].character + ' speaking...');
+  } else if (currentMode === 'test') {
+    // Open popup test for this bubble
+    openPopupTest(index);
+  }
+}
+
+// ===== BOTTOM PANEL TEST =====
 function initTestPanel() {
   const selector = document.getElementById('testBubbleSelector');
   bubbles.forEach((bubble, i) => {
@@ -773,51 +1127,99 @@ function initTestPanel() {
     btn.className = 'test-bubble-btn';
     const preview = bubble.text.length > 25 ? bubble.text.substring(0, 25) + '...' : bubble.text;
     btn.textContent = bubble.character + ': "' + preview + '"';
-    btn.onclick = () => selectTestBubble(i, btn);
+    btn.onclick = () => selectPanelBubble(i, btn);
     selector.appendChild(btn);
   });
 }
 
-function selectTestBubble(index, btn) {
-  selectedTestBubble = { ...bubbles[index], index };
-
+function selectPanelBubble(index, btn) {
+  panelSelectedBubble = index;
   document.querySelectorAll('.test-bubble-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-
-  const display = document.getElementById('testTextDisplay');
-  const words = bubbles[index].text.split(/\s+/);
-  display.innerHTML = words.map(w =>
-    '<span class="word pending" onclick="playWordAudio(\'' + w.replace(/'/g, "\\'") + '\')">' + w + '</span>'
-  ).join(' ');
-
+  renderTestWords('panel', index);
   document.getElementById('scoreDisplay').classList.remove('visible');
   document.getElementById('testStatus').textContent = 'Press the microphone and read the text above!';
 }
 
-function retryTest() {
-  if (selectedTestBubble) {
-    const btn = document.querySelectorAll('.test-bubble-btn')[selectedTestBubble.index];
-    selectTestBubble(selectedTestBubble.index, btn);
-  }
+function renderTestWords(context, bubbleIndex) {
+  const prefix = context === 'popup' ? 'popup' : 'test';
+  const display = document.getElementById(prefix === 'popup' ? 'popupTextDisplay' : 'testTextDisplay');
+  const words = bubbles[bubbleIndex].text.split(/\s+/);
+  display.innerHTML = words.map(w =>
+    '<span class="word pending" onclick="playWordAudio(\'' + w.replace(/'/g, "\\'") + '\')">' + w + '</span>'
+  ).join(' ');
 }
 
-function toggleRecording() {
+// ===== POPUP TEST =====
+function openPopupTest(index) {
+  popupCurrentIndex = index;
+  popupBubbleResults = {};
+  renderPopup();
+  document.getElementById('popupOverlay').classList.add('visible');
+}
+
+function closePopup() {
+  document.getElementById('popupOverlay').classList.remove('visible');
+  stopRecording();
+}
+
+function renderPopup() {
+  const bubble = bubbles[popupCurrentIndex];
+
+  // Progress dots
+  const progressEl = document.getElementById('popupProgress');
+  progressEl.innerHTML = bubbles.map((_, i) => {
+    let cls = 'popup-progress-dot';
+    if (i === popupCurrentIndex) cls += ' current';
+    else if (popupBubbleResults[i] === 'passed') cls += ' done';
+    else if (popupBubbleResults[i] === 'failed') cls += ' failed';
+    return '<div class="' + cls + '"></div>';
+  }).join('');
+
+  document.getElementById('popupCharacter').textContent = bubble.character;
+  renderTestWords('popup', popupCurrentIndex);
+
+  // Reset score
+  document.getElementById('popupScore').classList.remove('visible');
+  document.getElementById('popupStatus').textContent = 'Press the microphone to start reading';
+
+  // Nav buttons
+  document.getElementById('popupPrev').disabled = popupCurrentIndex === 0;
+  document.getElementById('popupNext').disabled = popupCurrentIndex === bubbles.length - 1;
+}
+
+function popupNavigate(dir) {
+  const newIndex = popupCurrentIndex + dir;
+  if (newIndex < 0 || newIndex >= bubbles.length) return;
+  stopRecording();
+  popupCurrentIndex = newIndex;
+  renderPopup();
+}
+
+function onRunningModeChange() {
+  runningMode = document.getElementById('runningMode').checked;
+}
+
+// ===== RECORDING / SPEECH RECOGNITION =====
+function toggleRecording(context) {
   if (isRecording) {
     stopRecording();
   } else {
-    startRecording();
+    startRecording(context);
   }
 }
 
-function startRecording() {
-  if (!selectedTestBubble) {
+function startRecording(context) {
+  activeTestContext = context;
+
+  const bubbleIndex = context === 'popup' ? popupCurrentIndex : panelSelectedBubble;
+  if (bubbleIndex === null && context === 'panel') {
     document.getElementById('testStatus').textContent = 'Please select a bubble first!';
     return;
   }
 
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    document.getElementById('testStatus').textContent =
-      'Speech recognition is not supported in this browser. Please use Chrome or Edge.';
+    setStatus(context, 'Speech recognition not supported. Please use Chrome or Edge.');
     return;
   }
 
@@ -828,49 +1230,45 @@ function startRecording() {
   recognition.continuous = true;
   recognition.maxAlternatives = 3;
 
-  const recordBtn = document.getElementById('recordBtn');
-  recordBtn.classList.add('recording');
-  recordBtn.innerHTML = '&#x23F9;';
+  const btn = context === 'popup' ? document.getElementById('popupRecordBtn') : document.getElementById('recordBtn');
+  btn.classList.add('recording');
+  btn.innerHTML = '&#x23F9;';
   isRecording = true;
 
-  document.getElementById('testStatus').textContent = 'Listening... Read the text now!';
-  document.getElementById('scoreDisplay').classList.remove('visible');
+  setStatus(context, 'Listening... Read the text now!');
+  hideScore(context);
 
-  // Reset word colors
-  document.querySelectorAll('#testTextDisplay .word').forEach(w => {
-    w.className = 'word pending';
-  });
+  // Reset words
+  const prefix = context === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
+  document.querySelectorAll('#' + prefix + ' .word').forEach(w => w.className = 'word pending');
 
   let finalTranscript = '';
+  const expectedBubble = bubbles[bubbleIndex];
 
   recognition.onresult = (event) => {
     let interim = '';
     for (let i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) {
-        finalTranscript += event.results[i][0].transcript + ' ';
-      } else {
-        interim += event.results[i][0].transcript;
-      }
+      if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' ';
+      else interim += event.results[i][0].transcript;
     }
-
-    const spokenSoFar = (finalTranscript + interim).trim();
-    updateWordHighlights(spokenSoFar);
-    document.getElementById('testStatus').textContent = 'Heard: "' + spokenSoFar + '"';
+    const spoken = (finalTranscript + interim).trim();
+    updateHighlights(context, bubbleIndex, spoken);
+    setStatus(context, 'Heard: "' + spoken + '"');
   };
 
   recognition.onerror = (event) => {
     if (event.error !== 'no-speech' && event.error !== 'aborted') {
-      document.getElementById('testStatus').textContent = 'Error: ' + event.error + '. Try again!';
+      setStatus(context, 'Error: ' + event.error + '. Try again!');
     }
     stopRecording();
   };
 
   recognition.onend = () => {
     if (isRecording) {
-      evaluateReading(finalTranscript.trim());
+      evaluate(context, bubbleIndex, finalTranscript.trim());
       isRecording = false;
-      recordBtn.classList.remove('recording');
-      recordBtn.innerHTML = '&#x1F3A4;';
+      btn.classList.remove('recording');
+      btn.innerHTML = '&#x1F3A4;';
     }
   };
 
@@ -879,108 +1277,221 @@ function startRecording() {
 
 function stopRecording() {
   isRecording = false;
-  const recordBtn = document.getElementById('recordBtn');
-  recordBtn.classList.remove('recording');
-  recordBtn.innerHTML = '&#x1F3A4;';
-
-  if (recognition) {
-    try { recognition.stop(); } catch(e) {}
-    recognition = null;
-  }
+  ['recordBtn', 'popupRecordBtn'].forEach(id => {
+    const btn = document.getElementById(id);
+    btn.classList.remove('recording');
+    btn.innerHTML = '&#x1F3A4;';
+  });
+  if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
 }
 
-function normalizeWord(w) {
-  return w.toLowerCase().replace(/[^a-z']/g, '');
+function setStatus(context, text) {
+  const id = context === 'popup' ? 'popupStatus' : 'testStatus';
+  document.getElementById(id).textContent = text;
 }
 
-function updateWordHighlights(spoken) {
-  if (!selectedTestBubble) return;
+function hideScore(context) {
+  const id = context === 'popup' ? 'popupScore' : 'scoreDisplay';
+  document.getElementById(id).classList.remove('visible');
+}
 
-  const expectedWords = selectedTestBubble.text.split(/\s+/).map(normalizeWord);
-  const spokenWords = spoken.split(/\s+/).map(normalizeWord).filter(w => w);
-  const wordEls = document.querySelectorAll('#testTextDisplay .word');
+function updateHighlights(context, bubbleIndex, spoken) {
+  const expected = bubbles[bubbleIndex].text.split(/\s+/).map(normalizeWord);
+  const got = spoken.split(/\s+/).map(normalizeWord).filter(w => w);
+  const prefix = context === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
+  const wordEls = document.querySelectorAll('#' + prefix + ' .word');
 
   wordEls.forEach((el, i) => {
-    if (i < spokenWords.length) {
-      const expected = expectedWords[i];
-      const got = spokenWords[i];
-      if (expected === got || levenshtein(expected, got) <= 1) {
-        el.className = 'word correct';
-      } else {
-        el.className = 'word incorrect';
-      }
+    if (i < got.length) {
+      el.className = (expected[i] === got[i] || levenshtein(expected[i], got[i]) <= 1) ? 'word correct' : 'word incorrect';
     } else {
       el.className = 'word pending';
     }
   });
 }
 
-function evaluateReading(spoken) {
-  if (!selectedTestBubble || !spoken) {
-    document.getElementById('testStatus').textContent = 'No speech detected. Try again!';
-    return;
-  }
+function evaluate(context, bubbleIndex, spoken) {
+  if (!spoken) { setStatus(context, 'No speech detected. Try again!'); return; }
 
-  const expectedWords = selectedTestBubble.text.split(/\s+/).map(normalizeWord);
-  const spokenWords = spoken.split(/\s+/).map(normalizeWord).filter(w => w);
-
+  const expected = bubbles[bubbleIndex].text.split(/\s+/).map(normalizeWord);
+  const got = spoken.split(/\s+/).map(normalizeWord).filter(w => w);
   let correct = 0;
   const incorrectWords = [];
 
-  expectedWords.forEach((word, i) => {
-    const got = spokenWords[i] || '';
-    if (word === got || levenshtein(word, got) <= 1) {
-      correct++;
-    } else {
-      incorrectWords.push(selectedTestBubble.text.split(/\s+/)[i]);
-    }
+  expected.forEach((w, i) => {
+    const g = got[i] || '';
+    if (w === g || levenshtein(w, g) <= 1) correct++;
+    else incorrectWords.push(bubbles[bubbleIndex].text.split(/\s+/)[i]);
   });
 
-  const score = Math.round((correct / expectedWords.length) * 100);
-  updateWordHighlights(spoken);
+  const score = Math.round((correct / expected.length) * 100);
+  updateHighlights(context, bubbleIndex, spoken);
 
-  const scoreDisplay = document.getElementById('scoreDisplay');
-  const scoreNumber = document.getElementById('scoreNumber');
-  const scoreMessage = document.getElementById('scoreMessage');
-  const practiceWords = document.getElementById('practiceWords');
+  // Show score
+  const prefix = context === 'popup' ? 'popup' : '';
+  const scoreEl = document.getElementById(prefix ? 'popupScore' : 'scoreDisplay');
+  const numEl = document.getElementById(prefix ? 'popupScoreNumber' : 'scoreNumber');
+  const msgEl = document.getElementById(prefix ? 'popupScoreMessage' : 'scoreMessage');
+  const pracEl = document.getElementById(prefix ? 'popupPracticeWords' : 'practiceWords');
 
-  scoreNumber.textContent = score + '%';
+  numEl.textContent = score + '%';
 
   if (score >= 90) {
-    scoreNumber.className = 'score-number great';
-    scoreMessage.textContent = 'Amazing wizard! You read it perfectly! ';
-    scoreMessage.style.color = '#50fa7b';
+    numEl.className = 'score-number great';
+    msgEl.textContent = 'Amazing wizard! You read it perfectly!';
+    msgEl.style.color = '#50fa7b';
+    popupBubbleResults[bubbleIndex] = 'passed';
   } else if (score >= 70) {
-    scoreNumber.className = 'score-number good';
-    scoreMessage.textContent = 'Good job! Practice the highlighted words and try again!';
-    scoreMessage.style.color = '#ffd700';
+    numEl.className = 'score-number good';
+    msgEl.textContent = 'Good job! Practice the highlighted words and try again!';
+    msgEl.style.color = '#ffd700';
+    popupBubbleResults[bubbleIndex] = 'passed';
   } else {
-    scoreNumber.className = 'score-number practice';
-    scoreMessage.textContent = 'Keep practicing! Click the words below to hear how they sound.';
-    scoreMessage.style.color = '#ff8c42';
+    numEl.className = 'score-number practice';
+    msgEl.textContent = 'Keep practicing! Click the words below to hear how they sound.';
+    msgEl.style.color = '#ff8c42';
+    popupBubbleResults[bubbleIndex] = 'failed';
   }
 
-  // Show practice words (clickable to hear pronunciation)
-  practiceWords.innerHTML = '';
-  if (incorrectWords.length > 0) {
-    incorrectWords.forEach(word => {
-      const btn = document.createElement('button');
-      btn.className = 'practice-word';
-      btn.innerHTML = '&#x1F50A; ' + word;
-      btn.onclick = () => {
-        playWordAudio(word);
-        btn.classList.add('played');
-      };
-      practiceWords.appendChild(btn);
+  // Practice words
+  pracEl.innerHTML = '';
+  incorrectWords.forEach(word => {
+    const btn = document.createElement('button');
+    btn.className = 'practice-word';
+    btn.innerHTML = '&#x1F50A; ' + word;
+    btn.onclick = () => { playWordAudio(word); btn.classList.add('played'); };
+    pracEl.appendChild(btn);
+  });
+
+  scoreEl.classList.add('visible');
+  setStatus(context, 'Done! ' + correct + '/' + expected.length + ' words correct.');
+
+  // Update popup progress dots
+  if (context === 'popup') {
+    renderProgressDots();
+
+    // Running mode: auto-advance if all correct
+    if (runningMode && score >= 70) {
+      setTimeout(() => {
+        if (popupCurrentIndex < bubbles.length - 1) {
+          popupCurrentIndex++;
+          renderPopup();
+        } else {
+          // Completed all bubbles! Check if all passed
+          checkCompletion();
+        }
+      }, 1500);
+    }
+  }
+}
+
+function renderProgressDots() {
+  const progressEl = document.getElementById('popupProgress');
+  progressEl.innerHTML = bubbles.map((_, i) => {
+    let cls = 'popup-progress-dot';
+    if (i === popupCurrentIndex) cls += ' current';
+    else if (popupBubbleResults[i] === 'passed') cls += ' done';
+    else if (popupBubbleResults[i] === 'failed') cls += ' failed';
+    return '<div class="' + cls + '"></div>';
+  }).join('');
+}
+
+function checkCompletion() {
+  // Check if we've gone through all bubbles from the starting point to the end
+  const startIndex = Math.min(...Object.keys(popupBubbleResults).map(Number));
+  let allFromStartPassed = true;
+  for (let i = startIndex; i < bubbles.length; i++) {
+    if (popupBubbleResults[i] !== 'passed') { allFromStartPassed = false; break; }
+  }
+
+  if (allFromStartPassed && Object.keys(popupBubbleResults).length >= bubbles.length - startIndex) {
+    // Celebration!
+    closePopup();
+    showTrophy();
+    launchConfetti();
+  }
+}
+
+function retryTest(context) {
+  const bubbleIndex = context === 'popup' ? popupCurrentIndex : panelSelectedBubble;
+  if (bubbleIndex === null) return;
+  renderTestWords(context, bubbleIndex);
+  hideScore(context);
+  setStatus(context, 'Press the microphone and read the text above!');
+}
+
+// ===== CONFETTI & TROPHY =====
+function showTrophy() {
+  document.getElementById('trophyOverlay').classList.add('visible');
+}
+
+function dismissTrophy() {
+  document.getElementById('trophyOverlay').classList.remove('visible');
+}
+
+function launchConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = [];
+  const colors = ['#ffd700', '#ff6b6b', '#50fa7b', '#8be9fd', '#ff79c6', '#bd93f9', '#ffb86c'];
+
+  for (let i = 0; i < 150; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: -20 - Math.random() * 300,
+      w: 8 + Math.random() * 8,
+      h: 4 + Math.random() * 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 4,
+      vy: 2 + Math.random() * 4,
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 10,
+      opacity: 1
     });
   }
 
-  scoreDisplay.classList.add('visible');
-  document.getElementById('testStatus').textContent =
-    'Done! ' + correct + '/' + expectedWords.length + ' words correct.';
+  let frame = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+
+    pieces.forEach(p => {
+      if (p.opacity <= 0) return;
+      alive = true;
+
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.rotation += p.rotSpeed;
+
+      if (p.y > canvas.height) p.opacity -= 0.02;
+      if (frame > 120) p.opacity -= 0.01;
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+
+    frame++;
+    if (alive && frame < 300) requestAnimationFrame(animate);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  animate();
 }
 
-// Levenshtein distance for fuzzy matching
+// ===== UTILITIES =====
+function normalizeWord(w) {
+  return w.toLowerCase().replace(/[^a-z']/g, '');
+}
+
 function levenshtein(a, b) {
   if (!a.length) return b.length;
   if (!b.length) return a.length;
@@ -989,16 +1500,11 @@ function levenshtein(a, b) {
   for (let j = 0; j <= a.length; j++) m[0][j] = j;
   for (let i = 1; i <= b.length; i++) {
     for (let j = 1; j <= a.length; j++) {
-      m[i][j] = b[i-1] === a[j-1]
-        ? m[i-1][j-1]
-        : Math.min(m[i-1][j-1] + 1, m[i][j-1] + 1, m[i-1][j] + 1);
+      m[i][j] = b[i-1] === a[j-1] ? m[i-1][j-1] : Math.min(m[i-1][j-1]+1, m[i][j-1]+1, m[i-1][j]+1);
     }
   }
   return m[b.length][a.length];
 }
-
-// ===== INIT =====
-initTestPanel();
 </script>
 </body>
 </html>
