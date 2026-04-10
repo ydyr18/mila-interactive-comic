@@ -816,11 +816,23 @@ function popupNavigate(dir) {
 // ===== RECORDING =====
 function toggleRecording(ctx) { isRecording ? stopRecording() : startRecording(ctx); }
 
-function startRecording(ctx) {
+// Keep a persistent mic stream to prevent on/off sounds on mobile
+let persistentMicStream = null;
+
+async function startRecording(ctx) {
   activeTestContext = ctx;
   const bi = ctx === 'popup' ? popupCurrentIndex : panelSelectedBubble;
   if (bi === null && ctx === 'panel') { setStatus(ctx, 'Please select a bubble first!'); return; }
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { setStatus(ctx, 'Use Chrome or Edge for speech recognition.'); return; }
+
+  // Open mic stream first and keep it alive - prevents on/off click sounds on mobile
+  if (!persistentMicStream) {
+    try {
+      persistentMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch(e) {
+      // If getUserMedia fails, continue anyway - SpeechRecognition will request its own
+    }
+  }
 
   const btn = document.getElementById(ctx === 'popup' ? 'popupRecordBtn' : 'recordBtn');
   btn.classList.add('recording'); btn.innerHTML = '&#x23F9;';
@@ -831,10 +843,13 @@ function startRecording(ctx) {
   const prefix = ctx === 'popup' ? 'popupTextDisplay' : 'testTextDisplay';
   document.querySelectorAll('#' + prefix + ' .word').forEach(w => w.className = 'word pending');
 
-  let fullTranscript = ''; // All heard text accumulated across restarts
+  // IMPORTANT: On mobile, when recognition restarts after silence,
+  // it re-processes the audio buffer and returns everything again.
+  // So we DON'T accumulate across restarts - each session's transcript
+  // REPLACES the previous one (the latest is always the most complete).
+  let bestTranscript = ''; // The best/longest transcript we've seen
   const expectedWords = bubbles[bi].text.split(/\s+/);
   let autoStopScheduled = false;
-  let lastHeard = ''; // Always show what mic hears
 
   function createRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -845,43 +860,50 @@ function startRecording(ctx) {
     recognition.maxAlternatives = 5;
 
     recognition.onresult = (ev) => {
-      // Build transcript from all results
+      // Build THIS session's full transcript (final + interim)
       let sessionFinal = '';
       let interim = '';
       for (let i = 0; i < ev.results.length; i++) {
         if (ev.results[i].isFinal) {
-          // Pick best alternative for this chunk
           sessionFinal += pickBestAlternative(ev.results[i], bi) + ' ';
         } else {
           interim += ev.results[i][0].transcript;
         }
       }
 
-      const currentFullText = (fullTranscript + sessionFinal + interim).trim();
-      lastHeard = currentFullText;
+      // This session's transcript (NOT accumulated - replaces previous)
+      const sessionText = (sessionFinal + interim).trim();
 
-      // Run flexible alignment and update highlights
-      const alignment = flexAlign(expectedWords, currentFullText);
+      // Keep the best (longest useful) transcript
+      // Use alignment score to decide which is better
+      const curAlignment = flexAlign(expectedWords, sessionText);
+      const curMatched = curAlignment.filter(a => a.status === 'correct').length;
+      const bestAlignment = flexAlign(expectedWords, bestTranscript);
+      const bestMatched = bestAlignment.filter(a => a.status === 'correct').length;
+
+      if (curMatched >= bestMatched) {
+        bestTranscript = sessionText;
+      }
+
+      // Use the better one for display
+      const useText = curMatched >= bestMatched ? sessionText : bestTranscript;
+      const alignment = flexAlign(expectedWords, useText);
       applyAlignment(ctx, alignment);
+      setStatus(ctx, 'Hearing: "' + sessionText + '"');
 
-      // Always show what the mic hears
-      setStatus(ctx, 'Hearing: "' + currentFullText + '"');
-
-      // AUTO-STOP: check if alignment covered all expected words
-      const matchedCount = alignment.filter(a => a.status !== 'pending').length;
-      if (matchedCount >= expectedWords.length && !autoStopScheduled) {
+      // AUTO-STOP: when all expected words are matched (correct or incorrect, not pending)
+      const totalMatched = alignment.filter(a => a.status !== 'pending').length;
+      if (totalMatched >= expectedWords.length && !autoStopScheduled) {
         autoStopScheduled = true;
-        // Store sessionFinal into fullTranscript before stopping
-        fullTranscript += sessionFinal;
         setTimeout(() => {
-          if (isRecording) forceStopAndEvaluate(ctx, bi, lastHeard);
+          if (isRecording) forceStopAndEvaluate(ctx, bi, useText);
         }, 800);
       }
     };
 
     recognition.onerror = (ev) => {
       if (ev.error !== 'no-speech' && ev.error !== 'aborted' && ev.error !== 'network') {
-        setStatus(ctx, 'Error: ' + ev.error + '. Heard so far: "' + lastHeard + '"');
+        setStatus(ctx, 'Error: ' + ev.error + '. Heard: "' + bestTranscript + '"');
         stopRecording();
       }
     };
@@ -889,18 +911,14 @@ function startRecording(ctx) {
     recognition.onend = () => {
       if (!isRecording) return;
 
-      // Save what we heard in this session
-      // (fullTranscript already has accumulated text from previous restarts)
-      if (lastHeard) fullTranscript = lastHeard;
-
-      const alignment = flexAlign(expectedWords, fullTranscript);
+      const alignment = flexAlign(expectedWords, bestTranscript);
       const matchedCount = alignment.filter(a => a.status !== 'pending').length;
 
       if (matchedCount >= expectedWords.length) {
-        forceStopAndEvaluate(ctx, bi, fullTranscript);
+        forceStopAndEvaluate(ctx, bi, bestTranscript);
       } else {
-        // Restart - show what we heard so far
-        setStatus(ctx, 'Hearing: "' + fullTranscript + '" (' + matchedCount + '/' + expectedWords.length + ')');
+        // Restart - DON'T accumulate, new session will re-hear everything
+        setStatus(ctx, 'Hearing: "' + bestTranscript + '" (' + matchedCount + '/' + expectedWords.length + ')');
         try { createRecognition(); recognition.start(); } catch(e) {
           if (matchedCount > 0) forceStopAndEvaluate(ctx, bi, fullTranscript);
           else stopRecording();
@@ -1057,6 +1075,11 @@ function stopRecording() {
     btn.classList.remove('recording'); btn.innerHTML = '&#x1F3A4;';
   });
   if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
+  // Release persistent mic stream
+  if (persistentMicStream) {
+    persistentMicStream.getTracks().forEach(t => t.stop());
+    persistentMicStream = null;
+  }
 }
 
 function setStatus(ctx, t) { document.getElementById(ctx === 'popup' ? 'popupStatus' : 'testStatus').textContent = t; }
